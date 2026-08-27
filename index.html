@@ -4,23 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#2f6bd8">
 <title>Jumbo Output — 工作成果索引</title>
 <style>
   :root{
     --bg:#f6f7f9; --panel:#ffffff; --ink:#16181d; --ink-2:#5b6270; --ink-3:#8a91a0;
-    --line:#e3e6ec; --accent:#2f6bd8; --accent-soft:#eaf0fd;
+    --line:#e3e6ec; --accent:#2f6bd8; --accent-soft:#eaf0fd; --hover:#f2f4f8;
     --demo:#8a5cf6; --demo-bg:#f2ecfe;
     --report:#0f8a6a; --report-bg:#e6f6f1;
     --analysis:#c2711a; --analysis-bg:#fbf0e2;
-    --radius:12px;
+    --radius:12px; --shadow:0 10px 30px rgba(20,25,40,.14);
   }
   @media (prefers-color-scheme:dark){
     :root{
       --bg:#12141a; --panel:#1a1d25; --ink:#eceef3; --ink-2:#a4abb9; --ink-3:#767d8c;
-      --line:#2a2f3a; --accent:#7aa5f5; --accent-soft:#1e2735;
+      --line:#2a2f3a; --accent:#7aa5f5; --accent-soft:#1e2735; --hover:#232833;
       --demo:#b697fb; --demo-bg:#241d38;
       --report:#5fd3b0; --report-bg:#14302a;
       --analysis:#e2a55c; --analysis-bg:#33260f;
+      --shadow:0 10px 30px rgba(0,0,0,.5);
     }
   }
   *{box-sizing:border-box}
@@ -32,9 +37,10 @@
   .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
 
   header{border-bottom:1px solid var(--line); background:var(--panel)}
-  .head-in{max-width:1080px; margin:0 auto; padding:34px 24px 28px}
+  .head-in{max-width:1080px; margin:0 auto; padding:34px 24px 28px; display:flex; gap:14px; align-items:center}
+  .logo{width:38px; height:38px; flex:none; border-radius:9px}
   h1{margin:0; font-size:1.6rem; letter-spacing:-.01em; font-weight:650}
-  .sub{margin:6px 0 0; color:var(--ink-2); font-size:.94rem}
+  .sub{margin:4px 0 0; color:var(--ink-2); font-size:.94rem}
 
   .controls{display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin:24px 0 20px}
   #q{
@@ -44,17 +50,45 @@
   }
   #q:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
   #q::placeholder{color:var(--ink-3)}
-  .chips{display:flex; flex-wrap:wrap; gap:8px}
-  .chip{
-    padding:8px 14px; font-size:.88rem; font-family:inherit; cursor:pointer;
-    color:var(--ink-2); background:var(--panel); border:1px solid var(--line);
-    border-radius:999px; transition:all .15s;
-  }
-  .chip:hover{color:var(--ink); border-color:var(--ink-3)}
-  .chip[aria-pressed="true"]{color:#fff; background:var(--accent); border-color:var(--accent)}
-  @media (prefers-color-scheme:dark){ .chip[aria-pressed="true"]{color:#0f1218} }
 
-  .count{color:var(--ink-3); font-size:.85rem; margin:0 0 14px}
+  /* 分類：單一按鈕 + 下拉選單 */
+  .filter{position:relative; flex:none}
+  .filter-btn{
+    display:flex; align-items:center; gap:9px;
+    padding:10px 14px; font-size:.92rem; font-family:inherit; cursor:pointer;
+    color:var(--ink); background:var(--panel); border:1px solid var(--line);
+    border-radius:var(--radius); transition:border-color .15s;
+  }
+  .filter-btn:hover{border-color:var(--ink-3)}
+  .filter-btn[aria-expanded="true"]{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+  .filter-btn .dot{width:8px; height:8px; border-radius:50%; background:var(--ink-3); flex:none}
+  .filter-btn .dot.demo{background:var(--demo)}
+  .filter-btn .dot.report{background:var(--report)}
+  .filter-btn .dot.analysis{background:var(--analysis)}
+  .filter-btn .caret{color:var(--ink-3); font-size:.7rem; transition:transform .15s}
+  .filter-btn[aria-expanded="true"] .caret{transform:rotate(180deg)}
+
+  .filter-menu{
+    position:absolute; top:calc(100% + 6px); left:0; z-index:20; min-width:230px;
+    margin:0; padding:6px; list-style:none;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .filter-menu[hidden]{display:none}
+  .filter-menu li{
+    display:flex; align-items:center; gap:9px; padding:9px 10px;
+    font-size:.92rem; cursor:pointer; border-radius:8px; color:var(--ink-2);
+  }
+  .filter-menu li:hover{background:var(--hover); color:var(--ink)}
+  .filter-menu li[aria-selected="true"]{color:var(--accent); font-weight:600; background:var(--accent-soft)}
+  .filter-menu .dot{width:8px; height:8px; border-radius:50%; background:var(--ink-3); flex:none}
+  .filter-menu .dot.demo{background:var(--demo)}
+  .filter-menu .dot.report{background:var(--report)}
+  .filter-menu .dot.analysis{background:var(--analysis)}
+  .filter-menu .n{margin-left:auto; font-size:.8rem; color:var(--ink-3); font-variant-numeric:tabular-nums}
+
+  .count{color:var(--ink-3); font-size:.85rem; margin:0 0 14px; min-height:1.4em}
+  .count .warn{color:var(--analysis)}
 
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; padding-bottom:56px}
   .card{
@@ -77,25 +111,35 @@
   .date{margin-left:auto; font-size:.76rem; color:var(--ink-3); font-variant-numeric:tabular-nums}
 
   .empty{padding:56px 20px; text-align:center; color:var(--ink-3); border:1px dashed var(--line); border-radius:var(--radius)}
+
+  @media (max-width:520px){
+    .filter, .filter-btn{width:100%}
+    .filter-menu{right:0}
+  }
 </style>
 </head>
 <body>
 
 <header>
   <div class="head-in">
-    <h1>Jumbo Output</h1>
-    <p class="sub">工作上 Output 出去的網頁索引 — Demo Game、遊戲數據報告、競品分析</p>
+    <img class="logo" src="assets/favicon.svg" alt="" width="38" height="38">
+    <div>
+      <h1>Jumbo Output</h1>
+      <p class="sub">工作上 Output 出去的網頁索引 — Demo Game、遊戲數據報告、競品分析</p>
+    </div>
   </div>
 </header>
 
 <main class="wrap">
   <div class="controls">
     <input id="q" type="search" placeholder="搜尋標題、遊戲代號、說明、標籤…" autocomplete="off">
-    <div class="chips" id="chips">
-      <button class="chip" data-cat="all" aria-pressed="true">全部</button>
-      <button class="chip" data-cat="demo" aria-pressed="false">Demo Game</button>
-      <button class="chip" data-cat="report" aria-pressed="false">遊戲數據報告</button>
-      <button class="chip" data-cat="analysis" aria-pressed="false">競品分析</button>
+    <div class="filter">
+      <button class="filter-btn" id="filter-btn" aria-haspopup="listbox" aria-expanded="false">
+        <span class="dot" id="filter-dot"></span>
+        <span id="filter-label">全部分類</span>
+        <span class="caret">▼</span>
+      </button>
+      <ul class="filter-menu" id="filter-menu" role="listbox" hidden></ul>
     </div>
   </div>
 
@@ -106,16 +150,31 @@
 <script src="catalog.js"></script>
 <script>
 (function(){
-  var CAT_LABEL = { demo:"Demo Game", report:"遊戲數據報告", analysis:"競品分析" };
-  var items = (window.CATALOG || []).slice().sort(function(a,b){
-    return String(b.date||"").localeCompare(String(a.date||"")) ||
-           String(a.title||"").localeCompare(String(b.title||""));
-  });
+  /* ---------- Demo 自動掃描設定（沿用 Cworld/studio/demogame 的做法） ---------- */
+  var REPO_OWNER = "rhino-boss";
+  var REPO_NAME  = "Jumbo";
+  var SLOTS_PATH = "Project/Slots";
+  var PAGES_BASE = "https://" + REPO_OWNER + ".github.io/" + REPO_NAME;
 
-  var grid = document.getElementById("grid");
-  var countEl = document.getElementById("count");
-  var qEl = document.getElementById("q");
+  var CATS = [
+    { key:"all",      label:"全部分類" },
+    { key:"demo",     label:"Demo Game" },
+    { key:"report",   label:"遊戲數據報告" },
+    { key:"analysis", label:"競品分析" }
+  ];
+  var CAT_LABEL = { demo:"Demo Game", report:"遊戲數據報告", analysis:"競品分析" };
+
+  var grid     = document.getElementById("grid");
+  var countEl  = document.getElementById("count");
+  var qEl      = document.getElementById("q");
+  var btn      = document.getElementById("filter-btn");
+  var menu     = document.getElementById("filter-menu");
+  var labelEl  = document.getElementById("filter-label");
+  var dotEl    = document.getElementById("filter-dot");
+
   var cat = "all";
+  var items = (window.CATALOG || []).slice();
+  var discoverNote = "";
 
   function esc(s){
     return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
@@ -124,11 +183,60 @@
   }
   function isExternal(u){ return /^https?:\/\//i.test(u || ""); }
 
+  function sortItems(){
+    items.sort(function(a,b){
+      return String(b.date||"").localeCompare(String(a.date||"")) ||
+             String(a.title||"").localeCompare(String(b.title||""));
+    });
+  }
+
   function haystack(it){
     return [it.title, it.game, it.desc, CAT_LABEL[it.cat], (it.tags||[]).join(" ")]
       .join(" ").toLowerCase();
   }
+  function countOf(key){
+    return key === "all" ? items.length : items.filter(function(i){ return i.cat === key; }).length;
+  }
 
+  /* ---------- 分類下拉 ---------- */
+  function buildMenu(){
+    menu.innerHTML = CATS.map(function(c){
+      return '<li role="option" data-cat="' + c.key + '"' +
+             ' aria-selected="' + (c.key === cat) + '">' +
+             '<span class="dot ' + (c.key === "all" ? "" : c.key) + '"></span>' +
+             '<span>' + esc(c.label) + '</span>' +
+             '<span class="n">' + countOf(c.key) + '</span>' +
+             '</li>';
+    }).join("");
+  }
+  function setOpen(open){
+    menu.hidden = !open;
+    btn.setAttribute("aria-expanded", String(open));
+    if (open) buildMenu();
+  }
+  function selectCat(key){
+    cat = key;
+    var c = CATS.filter(function(x){ return x.key === key; })[0] || CATS[0];
+    labelEl.textContent = c.label;
+    dotEl.className = "dot " + (key === "all" ? "" : key);
+    setOpen(false);
+    render();
+  }
+
+  btn.addEventListener("click", function(e){
+    e.stopPropagation();
+    setOpen(menu.hidden);
+  });
+  menu.addEventListener("click", function(e){
+    var li = e.target.closest("li[data-cat]");
+    if (li) selectCat(li.dataset.cat);
+  });
+  document.addEventListener("click", function(){ if (!menu.hidden) setOpen(false); });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && !menu.hidden){ setOpen(false); btn.focus(); }
+  });
+
+  /* ---------- 渲染 ---------- */
   function render(){
     var q = qEl.value.trim().toLowerCase();
     var list = items.filter(function(it){
@@ -136,14 +244,16 @@
       return !q || haystack(it).indexOf(q) !== -1;
     });
 
-    countEl.textContent = list.length
-      ? list.length + " 筆" + (items.length !== list.length ? "（共 " + items.length + " 筆）" : "")
-      : "";
+    var parts = [];
+    if (list.length) parts.push(list.length + " 筆" + (items.length !== list.length ? "（共 " + items.length + " 筆）" : ""));
+    if (discoverNote) parts.push('<span class="warn">' + esc(discoverNote) + "</span>");
+    countEl.innerHTML = parts.join(" · ");
 
     if (!list.length){
       grid.innerHTML = '<div class="empty">' +
         (items.length ? "沒有符合條件的項目。" : "目錄還是空的 — 在 catalog.js 加入第一筆。") +
         '</div>';
+      if (!menu.hidden) buildMenu();
       return;
     }
 
@@ -164,19 +274,82 @@
         '</div>' +
       '</a>';
     }).join('');
+
+    if (!menu.hidden) buildMenu();
   }
 
-  document.getElementById("chips").addEventListener("click", function(e){
-    var btn = e.target.closest(".chip");
-    if (!btn) return;
-    cat = btn.dataset.cat;
-    this.querySelectorAll(".chip").forEach(function(c){
-      c.setAttribute("aria-pressed", String(c === btn));
-    });
-    render();
-  });
+  /* ---------- Demo 自動掃描 ---------- */
+  function parseFolderName(name){
+    var m = name.match(/^([A-Za-z0-9]+)_(.+)$/);
+    return m ? { id:m[1], title:m[2] } : { id:"", title:name };
+  }
+
+  function fetchJson(url){
+    return fetch(url, { headers:{ Accept:"application/vnd.github+json" } })
+      .then(function(res){
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      });
+  }
+
+  function discoverDemos(){
+    // 手動在 catalog.js 加過的 demo 網址不要重複收錄
+    var known = {};
+    items.forEach(function(i){ if (i.cat === "demo") known[i.url] = true; });
+
+    return fetchJson("https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/contents/Project")
+      .then(function(proj){
+        var slots = proj.filter(function(i){ return i.type === "dir" && i.name === "Slots"; })[0];
+        if (!slots) throw new Error("找不到 Slots 目錄");
+        return fetchJson("https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME +
+                         "/git/trees/" + slots.sha + "?recursive=1");
+      })
+      .then(function(tree){
+        var nodes = tree.tree || [];
+        // 頂層「代號_名稱」資料夾（自動排除 其他／未完成 等中文開頭目錄）
+        var folders = nodes.filter(function(n){
+          return n.type === "tree" && /^[A-Za-z0-9]+_[^/]+$/.test(n.path);
+        }).map(function(n){ return n.path; });
+
+        // 只收真的有 index.html 的（有 demo 才上架）
+        var hasDemo = {};
+        nodes.forEach(function(n){
+          var m = n.path.match(/^([A-Za-z0-9]+_[^/]+)\/index\.html$/);
+          if (m) hasDemo[m[1]] = true;
+        });
+
+        var added = 0;
+        folders.forEach(function(folder){
+          if (!hasDemo[folder]) return;
+          var url = PAGES_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder) + "/";
+          if (known[url]) return;
+          var info = parseFolderName(folder);
+          items.push({
+            title: info.id ? info.id + " " + info.title : info.title,
+            url: url, cat: "demo", game: info.id,
+            desc: "可直接於瀏覽器試玩的離線 demo",
+            tags: ["自動掃描"]
+          });
+          added++;
+        });
+
+        if (tree.truncated) discoverNote = "GitHub 目錄樹過大被截斷，demo 清單可能不完整";
+        sortItems();
+        render();
+        return added;
+      })
+      .catch(function(err){
+        discoverNote = "Demo 自動掃描失敗（" + err.message + "）";
+        render();
+        return 0;
+      });
+  }
+
+  /* ---------- 啟動 ---------- */
   qEl.addEventListener("input", render);
-  render();
+  sortItems();
+  selectCat("all");
+  discoverDemos();
 })();
 </script>
 </body>
