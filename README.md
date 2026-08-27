@@ -84,23 +84,26 @@ GitHub API 共 3 次呼叫（未登入限每小時 60 次）：
 
 ## 視覺風格
 
-沿用 Cworld 的**結構與配色邏輯**，但整體是深色系：深底 `#15171c`、
-卡片面 `#1d2026`、16px 圓角、`0 2px 12px rgba(0,0,0,.35)` 陰影
-（hover 換 `0 10px 32px rgba(0,0,0,.55)` 並上浮 3px）、
-Helvetica Neue / PingFang TC 字族、深海軍藍漸層 hero（`#1b2a42 → #2f4d76`），
-卡片頂端 4px 色條用 Cworld 的粉彩標分類：
+沿用 Cworld 的設計語言，底色改為淺藍：頁面底 `#eef2f9`、白卡、
+`0 2px 12px rgba(0,0,0,.07)` 柔和陰影（hover 換 `0 8px 32px rgba(0,0,0,.13)` 並上浮 3px）、
+Helvetica Neue / PingFang TC 字族、海軍藍漸層 hero（`#2a3d5c → #3e6394`），
+卡片頂端 3px 色條用 Cworld 的粉彩標分類：
 
 | 分類 | 色條 |
 |---|---|
 | Demogame | `--accent-4` `#d4cba8`（沙） |
 | 競品分析 | `--accent-1` `#d4a8a8`（玫瑰） |
 
-沒有做亮／深自動切換，是固定深色。
+沒有做亮／深自動切換，是固定亮色。
+
+卡片刻意做小（欄寬下限 268px、內距 16px、圓角 12px），
+內容只有「分類標籤＋遊戲商／標題／說明」三行，
+不顯示日期與標籤列 — 日期仍用於排序與搜尋，只是不占版面。
 
 favicon 是深藍 `#1b3a6b` 底白 J，字形幾何沿用 Cworld 那顆紅底 C
 （64×64、`rx=14`、Helvetica Bold、`text-anchor:middle`），
-`x/y` 依 Arial Bold 的實際字形範圍反推以視覺置中。因為它疊在同樣深海軍藍的
-hero 上對比不足，hero 那顆 logo 額外加了 `box-shadow: 0 0 0 2px rgba(255,255,255,.32)` 描邊。
+`x/y` 依 Arial Bold 的實際字形範圍反推以視覺置中。因為它疊在海軍藍 hero 上
+對比不足，hero 那顆 logo 額外加了 `box-shadow: 0 0 0 2px rgba(255,255,255,.32)` 描邊。
 
 ## 手動掛一個例外網頁
 
