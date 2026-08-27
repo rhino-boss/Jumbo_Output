@@ -106,7 +106,8 @@ Demogame 的標題本來就是「H016 幸運王牌」，代號會重複所以自
 
 favicon 是深藍 `#1b3a6b` 底白 J，字形幾何沿用 Cworld 那顆紅底 C
 （64×64、`rx=14`、Helvetica Bold、`text-anchor:middle`），
-`x/y` 依 Arial Bold 的實際字形範圍反推以視覺置中。hero 上的那顆不加外框。
+`x/y` 依 Arial Bold 的實際字形範圍反推以視覺置中。因為它疊在海軍藍 hero 上
+對比不足，hero 那顆 logo 加了 `box-shadow: 0 0 0 2px rgba(255,255,255,.32)` 描邊。
 
 ## 手動掛一個例外網頁
 

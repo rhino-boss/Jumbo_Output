@@ -49,7 +49,11 @@
     padding: 34px 48px 30px; color: #fff;
   }
   .hero-in { max-width: 1360px; margin: 0 auto; display: flex; gap: 16px; align-items: center; }
-  .hero .logo { width: 44px; height: 44px; flex: none; border-radius: 10px; }
+  /* icon 是深藍，疊在海軍藍 hero 上對比不足，加一圈淡白描邊維持可見度 */
+  .hero .logo {
+    width: 44px; height: 44px; flex: none; border-radius: 10px;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.32);
+  }
   .hero h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; }
   .hero p { margin-top: 6px; font-size: 0.9rem; opacity: .7; }
 
