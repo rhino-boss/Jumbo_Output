@@ -1,0 +1,14 @@
+# OS / 編輯器
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+
+# Python 暫存
+__pycache__/
+*.pyc
+
+# 暫存 / 備份檔（不要進倉庫）
+*.bak
+*.tmp
+~$*

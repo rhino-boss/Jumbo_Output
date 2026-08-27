@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Jumbo Output — 工作成果索引</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#16181d; --ink-2:#5b6270; --ink-3:#8a91a0;
+    --line:#e3e6ec; --accent:#2f6bd8; --accent-soft:#eaf0fd;
+    --demo:#8a5cf6; --demo-bg:#f2ecfe;
+    --report:#0f8a6a; --report-bg:#e6f6f1;
+    --analysis:#c2711a; --analysis-bg:#fbf0e2;
+    --radius:12px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#12141a; --panel:#1a1d25; --ink:#eceef3; --ink-2:#a4abb9; --ink-3:#767d8c;
+      --line:#2a2f3a; --accent:#7aa5f5; --accent-soft:#1e2735;
+      --demo:#b697fb; --demo-bg:#241d38;
+      --report:#5fd3b0; --report-bg:#14302a;
+      --analysis:#e2a55c; --analysis-bg:#33260f;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+
+  header{border-bottom:1px solid var(--line); background:var(--panel)}
+  .head-in{max-width:1080px; margin:0 auto; padding:34px 24px 28px}
+  h1{margin:0; font-size:1.6rem; letter-spacing:-.01em; font-weight:650}
+  .sub{margin:6px 0 0; color:var(--ink-2); font-size:.94rem}
+
+  .controls{display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin:24px 0 20px}
+  #q{
+    flex:1 1 240px; min-width:0; padding:10px 14px; font-size:.95rem; font-family:inherit;
+    color:var(--ink); background:var(--panel); border:1px solid var(--line);
+    border-radius:var(--radius); outline:none;
+  }
+  #q:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+  #q::placeholder{color:var(--ink-3)}
+  .chips{display:flex; flex-wrap:wrap; gap:8px}
+  .chip{
+    padding:8px 14px; font-size:.88rem; font-family:inherit; cursor:pointer;
+    color:var(--ink-2); background:var(--panel); border:1px solid var(--line);
+    border-radius:999px; transition:all .15s;
+  }
+  .chip:hover{color:var(--ink); border-color:var(--ink-3)}
+  .chip[aria-pressed="true"]{color:#fff; background:var(--accent); border-color:var(--accent)}
+  @media (prefers-color-scheme:dark){ .chip[aria-pressed="true"]{color:#0f1218} }
+
+  .count{color:var(--ink-3); font-size:.85rem; margin:0 0 14px}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; padding-bottom:56px}
+  .card{
+    display:flex; flex-direction:column; gap:10px; padding:18px;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    text-decoration:none; color:inherit; transition:border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .card:hover{border-color:var(--accent); transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.07)}
+  .card-top{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+  .badge{padding:3px 9px; font-size:.74rem; font-weight:600; border-radius:6px; letter-spacing:.02em}
+  .badge.demo{color:var(--demo); background:var(--demo-bg)}
+  .badge.report{color:var(--report); background:var(--report-bg)}
+  .badge.analysis{color:var(--analysis); background:var(--analysis-bg)}
+  .gid{font-size:.78rem; font-weight:600; color:var(--ink-3); font-variant-numeric:tabular-nums}
+  .ext{margin-left:auto; font-size:.72rem; color:var(--ink-3)}
+  .card h2{margin:0; font-size:1.02rem; font-weight:620; line-height:1.4}
+  .card p{margin:0; font-size:.88rem; color:var(--ink-2)}
+  .card-foot{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:auto; padding-top:4px}
+  .tag{font-size:.74rem; color:var(--ink-3); padding:2px 8px; border:1px solid var(--line); border-radius:5px}
+  .date{margin-left:auto; font-size:.76rem; color:var(--ink-3); font-variant-numeric:tabular-nums}
+
+  .empty{padding:56px 20px; text-align:center; color:var(--ink-3); border:1px dashed var(--line); border-radius:var(--radius)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-in">
+    <h1>Jumbo Output</h1>
+    <p class="sub">工作上 Output 出去的網頁索引 — Demo Game、遊戲數據報告、競品分析</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="controls">
+    <input id="q" type="search" placeholder="搜尋標題、遊戲代號、說明、標籤…" autocomplete="off">
+    <div class="chips" id="chips">
+      <button class="chip" data-cat="all" aria-pressed="true">全部</button>
+      <button class="chip" data-cat="demo" aria-pressed="false">Demo Game</button>
+      <button class="chip" data-cat="report" aria-pressed="false">遊戲數據報告</button>
+      <button class="chip" data-cat="analysis" aria-pressed="false">競品分析</button>
+    </div>
+  </div>
+
+  <p class="count" id="count"></p>
+  <div class="grid" id="grid"></div>
+</main>
+
+<script src="catalog.js"></script>
+<script>
+(function(){
+  var CAT_LABEL = { demo:"Demo Game", report:"遊戲數據報告", analysis:"競品分析" };
+  var items = (window.CATALOG || []).slice().sort(function(a,b){
+    return String(b.date||"").localeCompare(String(a.date||"")) ||
+           String(a.title||"").localeCompare(String(b.title||""));
+  });
+
+  var grid = document.getElementById("grid");
+  var countEl = document.getElementById("count");
+  var qEl = document.getElementById("q");
+  var cat = "all";
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function isExternal(u){ return /^https?:\/\//i.test(u || ""); }
+
+  function haystack(it){
+    return [it.title, it.game, it.desc, CAT_LABEL[it.cat], (it.tags||[]).join(" ")]
+      .join(" ").toLowerCase();
+  }
+
+  function render(){
+    var q = qEl.value.trim().toLowerCase();
+    var list = items.filter(function(it){
+      if (cat !== "all" && it.cat !== cat) return false;
+      return !q || haystack(it).indexOf(q) !== -1;
+    });
+
+    countEl.textContent = list.length
+      ? list.length + " 筆" + (items.length !== list.length ? "（共 " + items.length + " 筆）" : "")
+      : "";
+
+    if (!list.length){
+      grid.innerHTML = '<div class="empty">' +
+        (items.length ? "沒有符合條件的項目。" : "目錄還是空的 — 在 catalog.js 加入第一筆。") +
+        '</div>';
+      return;
+    }
+
+    grid.innerHTML = list.map(function(it){
+      var ext = isExternal(it.url);
+      return '<a class="card" href="' + esc(it.url) + '"' +
+             (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
+        '<div class="card-top">' +
+          '<span class="badge ' + esc(it.cat) + '">' + esc(CAT_LABEL[it.cat] || it.cat) + '</span>' +
+          (it.game ? '<span class="gid">' + esc(it.game) + '</span>' : '') +
+          (ext ? '<span class="ext">外部連結 ↗</span>' : '') +
+        '</div>' +
+        '<h2>' + esc(it.title) + '</h2>' +
+        (it.desc ? '<p>' + esc(it.desc) + '</p>' : '') +
+        '<div class="card-foot">' +
+          (it.tags||[]).map(function(t){ return '<span class="tag">' + esc(t) + '</span>'; }).join('') +
+          (it.date ? '<span class="date">' + esc(it.date) + '</span>' : '') +
+        '</div>' +
+      '</a>';
+    }).join('');
+  }
+
+  document.getElementById("chips").addEventListener("click", function(e){
+    var btn = e.target.closest(".chip");
+    if (!btn) return;
+    cat = btn.dataset.cat;
+    this.querySelectorAll(".chip").forEach(function(c){
+      c.setAttribute("aria-pressed", String(c === btn));
+    });
+    render();
+  });
+  qEl.addEventListener("input", render);
+  render();
+})();
+</script>
+</body>
+</html>
