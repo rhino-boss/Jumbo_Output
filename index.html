@@ -7,29 +7,32 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta name="theme-color" content="#2a3d5c">
+<meta name="theme-color" content="#1b2a42">
 <title>Jumbo Output</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* Cworld 的結構與配色邏輯，改成深色系 */
   :root {
-    --bg: #f7f7f5;
-    --surface: #ffffff;
-    --border: #e8e8e4;
-    --text-primary: #1a1a1a;
-    --text-secondary: #6b6b6b;
-    --text-tag: #4a4a4a;
+    --bg: #15171c;
+    --surface: #1d2026;
+    --surface-2: #262a32;      /* hover 用的次層 */
+    --border: #2c3038;
+    --text-primary: #e9ebef;
+    --text-secondary: #98a0ac;
+    --text-tag: #c3c9d3;
 
-    /* Cworld 的粉彩，這裡用來標分類 */
+    /* Cworld 的粉彩，這裡用來標分類（深底上仍然清楚） */
     --accent-1: #d4a8a8;   /* 玫瑰 — 競品分析 */
     --accent-4: #d4cba8;   /* 沙   — Demogame */
 
-    --accent-dark: #2a3d5c;
-    --accent-mid: #3e6394;
+    --accent-dark: #1b2a42;    /* hero 起 */
+    --accent-mid: #2f4d76;     /* hero 迄 */
+    --focus: #6a95d4;          /* 深底上的互動高亮 */
 
     --radius: 16px;
-    --shadow: 0 2px 12px rgba(0,0,0,0.07);
-    --shadow-hover: 0 8px 32px rgba(0,0,0,0.13);
+    --shadow: 0 2px 12px rgba(0,0,0,0.35);
+    --shadow-hover: 0 10px 32px rgba(0,0,0,0.55);
   }
 
   body {
@@ -46,7 +49,11 @@
     padding: 40px 48px 36px; color: #fff;
   }
   .hero-in { max-width: 1360px; margin: 0 auto; display: flex; gap: 16px; align-items: center; }
-  .hero .logo { width: 44px; height: 44px; flex: none; border-radius: 10px; }
+  /* icon 是深藍，疊在海軍藍 hero 上對比不足，加一圈淡白描邊維持可見度 */
+  .hero .logo {
+    width: 44px; height: 44px; flex: none; border-radius: 10px;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.32);
+  }
   .hero h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; }
   .hero p { margin-top: 6px; font-size: 0.9rem; opacity: .7; }
 
@@ -61,7 +68,7 @@
     border: 1px solid var(--border); border-radius: 10px; outline: none;
     transition: border-color .18s, box-shadow .18s;
   }
-  #q:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(62,99,148,.13); }
+  #q:focus { border-color: var(--focus); box-shadow: 0 0 0 3px rgba(106,149,212,.20); }
   #q::placeholder { color: var(--text-secondary); opacity: .75; }
 
   /* 分類：單一按鈕 + 下拉 */
@@ -73,10 +80,10 @@
     border: 1px solid var(--border); border-radius: 10px;
     transition: border-color .18s, color .18s;
   }
-  .filter-btn:hover { border-color: var(--accent-mid); color: var(--text-primary); }
+  .filter-btn:hover { border-color: var(--focus); color: var(--text-primary); }
   .filter-btn[aria-expanded="true"] {
-    border-color: var(--accent-mid); color: var(--text-primary);
-    box-shadow: 0 0 0 3px rgba(62,99,148,.13);
+    border-color: var(--focus); color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(106,149,212,.20);
   }
   .filter-btn .dot, .filter-menu .dot {
     width: 9px; height: 9px; border-radius: 50%; flex: none;
@@ -99,9 +106,9 @@
     font-size: 0.88rem; cursor: pointer; border-radius: 10px; color: var(--text-tag);
     transition: background .18s;
   }
-  .filter-menu li:hover { background: var(--bg); }
+  .filter-menu li:hover { background: var(--surface-2); }
   .filter-menu li[aria-selected="true"] {
-    background: var(--accent-dark); color: #fff; font-weight: 600;
+    background: var(--accent-mid); color: #fff; font-weight: 600;
   }
   .filter-menu li[aria-selected="true"] .n { color: rgba(255,255,255,.65); }
   .filter-menu .n { margin-left: auto; font-size: .78rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
@@ -110,7 +117,7 @@
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     margin: 22px 0 20px; font-size: .82rem; color: var(--text-secondary); min-height: 1.4em;
   }
-  .status-bar .warn { color: #a8632a; }
+  .status-bar .warn { color: #d9a86a; }
 
   /* ── 卡片 ── */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
@@ -136,8 +143,8 @@
     padding: 3px 10px; font-size: .7rem; font-weight: 800;
     letter-spacing: .3px; border-radius: 99px;
   }
-  .badge.demo { color: #7d7248; background: #f6f3e8; }
-  .badge.analysis { color: #8f5a5a; background: #f7ecec; }
+  .badge.demo { color: #ddd1a0; background: #2f2a1b; }
+  .badge.analysis { color: #e0b4b4; background: #332322; }
   .gid { font-size: .76rem; font-weight: 700; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
   .ext { margin-left: auto; font-size: .7rem; color: var(--text-secondary); opacity: .8; }
   .card h2 { font-size: 1.05rem; font-weight: 800; line-height: 1.45; }
@@ -145,7 +152,7 @@
   .card-foot { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: auto; padding-top: 6px; }
   .tag {
     font-size: .72rem; color: var(--text-tag); padding: 3px 9px;
-    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
   }
   .date { margin-left: auto; font-size: .74rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 
@@ -177,7 +184,7 @@
     <img class="logo" src="assets/favicon.svg" alt="" width="44" height="44">
     <div>
       <h1>Jumbo Output</h1>
-      <p>工作上 Output 出去的網頁索引 — Demogame、競品分析</p>
+      <p>工作上 Output 出去的網頁索引 — 老虎機遊戲 Demo、競品分析</p>
     </div>
   </div>
 </div>
@@ -199,7 +206,7 @@
   <div class="grid" id="grid"></div>
 </div>
 
-<footer>made with ☕ by 嘻嘻</footer>
+<footer>made with ☕ by c</footer>
 
 <script src="catalog.js"></script>
 <script>

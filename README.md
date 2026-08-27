@@ -9,24 +9,29 @@
 ```
 index.html      索引首頁（搜尋 + 分類下拉）
 catalog.js      靜態收錄清單 — 手動加的項目改這個檔案
-assets/         favicon（藍底白 J，沿用 Cworld 那顆 C 的樣式）
+assets/         favicon（深藍底白 J，沿用 Cworld 那顆 C 的樣式）
 analysis/       競品分析報告 HTML（Demogame 走自動掃描，不放檔案）
 .nojekyll       讓 GitHub Pages 原樣輸出，不跑 Jekyll
 ```
 
 ## 視覺風格
 
-沿用 Cworld 的設計語言：暖白底 `#f7f7f5`、白卡 16px 圓角、
-`0 2px 12px rgba(0,0,0,.07)` 柔和陰影（hover 換 `0 8px 32px rgba(0,0,0,.13)` 並上浮 3px）、
-Helvetica Neue / PingFang TC 字族、海軍藍漸層 hero（`#2a3d5c → #3e6394`），
-卡片頂端 4px 色條用 Cworld 的四色粉彩標分類：
+沿用 Cworld 的**結構與配色邏輯**，但整體改為深色系：深底 `#15171c`、
+卡片面 `#1d2026`、16px 圓角、`0 2px 12px rgba(0,0,0,.35)` 陰影
+（hover 換 `0 10px 32px rgba(0,0,0,.55)` 並上浮 3px）、
+Helvetica Neue / PingFang TC 字族、深海軍藍漸層 hero（`#1b2a42 → #2f4d76`），
+卡片頂端 4px 色條用 Cworld 的粉彩標分類：
 
 | 分類 | 色條 |
 |---|---|
 | Demogame | `--accent-4` `#d4cba8`（沙） |
 | 競品分析 | `--accent-1` `#d4a8a8`（玫瑰） |
 
-Cworld 本身沒有深色模式，所以這裡也是純亮色。
+Cworld 本身是亮色，這裡只借它的結構、圓角、陰影邏輯與粉彩分類色，配色改成深色。
+沒有做亮／深自動切換，是固定深色。
+
+favicon 是深藍 `#1b3a6b` 底白 J。因為它疊在同樣是深海軍藍的 hero 上對比不足，
+hero 那顆 logo 額外加了 `box-shadow: 0 0 0 2px rgba(255,255,255,.32)` 描邊。
 
 ## 兩種分類
 
