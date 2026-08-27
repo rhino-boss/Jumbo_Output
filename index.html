@@ -1,136 +1,188 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta name="theme-color" content="#2f6bd8">
-<title>Jumbo Output — 工作成果索引</title>
+<meta name="theme-color" content="#2a3d5c">
+<title>Jumbo Output</title>
 <style>
-  :root{
-    --bg:#f6f7f9; --panel:#ffffff; --ink:#16181d; --ink-2:#5b6270; --ink-3:#8a91a0;
-    --line:#e3e6ec; --accent:#2f6bd8; --accent-soft:#eaf0fd; --hover:#f2f4f8;
-    --demo:#8a5cf6; --demo-bg:#f2ecfe;
-    --report:#0f8a6a; --report-bg:#e6f6f1;
-    --analysis:#c2711a; --analysis-bg:#fbf0e2;
-    --radius:12px; --shadow:0 10px 30px rgba(20,25,40,.14);
-  }
-  @media (prefers-color-scheme:dark){
-    :root{
-      --bg:#12141a; --panel:#1a1d25; --ink:#eceef3; --ink-2:#a4abb9; --ink-3:#767d8c;
-      --line:#2a2f3a; --accent:#7aa5f5; --accent-soft:#1e2735; --hover:#232833;
-      --demo:#b697fb; --demo-bg:#241d38;
-      --report:#5fd3b0; --report-bg:#14302a;
-      --analysis:#e2a55c; --analysis-bg:#33260f;
-      --shadow:0 10px 30px rgba(0,0,0,.5);
-    }
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family:"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
-    line-height:1.6; -webkit-font-smoothing:antialiased;
-  }
-  .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  header{border-bottom:1px solid var(--line); background:var(--panel)}
-  .head-in{max-width:1080px; margin:0 auto; padding:34px 24px 28px; display:flex; gap:14px; align-items:center}
-  .logo{width:38px; height:38px; flex:none; border-radius:9px}
-  h1{margin:0; font-size:1.6rem; letter-spacing:-.01em; font-weight:650}
-  .sub{margin:4px 0 0; color:var(--ink-2); font-size:.94rem}
+  :root {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --border: #e8e8e4;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --text-tag: #4a4a4a;
 
-  .controls{display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin:24px 0 20px}
-  #q{
-    flex:1 1 240px; min-width:0; padding:10px 14px; font-size:.95rem; font-family:inherit;
-    color:var(--ink); background:var(--panel); border:1px solid var(--line);
-    border-radius:var(--radius); outline:none;
+    /* Cworld 的粉彩，這裡用來標分類 */
+    --accent-1: #d4a8a8;   /* 玫瑰 — 競品分析 */
+    --accent-4: #d4cba8;   /* 沙   — Demogame */
+
+    --accent-dark: #2a3d5c;
+    --accent-mid: #3e6394;
+
+    --radius: 16px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --shadow-hover: 0 8px 32px rgba(0,0,0,0.13);
   }
-  #q:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
-  #q::placeholder{color:var(--ink-3)}
 
-  /* 分類：單一按鈕 + 下拉選單 */
-  .filter{position:relative; flex:none}
-  .filter-btn{
-    display:flex; align-items:center; gap:9px;
-    padding:10px 14px; font-size:.92rem; font-family:inherit; cursor:pointer;
-    color:var(--ink); background:var(--panel); border:1px solid var(--line);
-    border-radius:var(--radius); transition:border-color .15s;
+  body {
+    background: var(--bg);
+    font-family: 'Helvetica Neue', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
   }
-  .filter-btn:hover{border-color:var(--ink-3)}
-  .filter-btn[aria-expanded="true"]{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
-  .filter-btn .dot{width:8px; height:8px; border-radius:50%; background:var(--ink-3); flex:none}
-  .filter-btn .dot.demo{background:var(--demo)}
-  .filter-btn .dot.report{background:var(--report)}
-  .filter-btn .dot.analysis{background:var(--analysis)}
-  .filter-btn .caret{color:var(--ink-3); font-size:.7rem; transition:transform .15s}
-  .filter-btn[aria-expanded="true"] .caret{transform:rotate(180deg)}
 
-  .filter-menu{
-    position:absolute; top:calc(100% + 6px); left:0; z-index:20; min-width:230px;
-    margin:0; padding:6px; list-style:none;
-    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
-    box-shadow:var(--shadow);
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, var(--accent-dark), var(--accent-mid));
+    padding: 40px 48px 36px; color: #fff;
   }
-  .filter-menu[hidden]{display:none}
-  .filter-menu li{
-    display:flex; align-items:center; gap:9px; padding:9px 10px;
-    font-size:.92rem; cursor:pointer; border-radius:8px; color:var(--ink-2);
+  .hero-in { max-width: 1360px; margin: 0 auto; display: flex; gap: 16px; align-items: center; }
+  .hero .logo { width: 44px; height: 44px; flex: none; border-radius: 10px; }
+  .hero h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; }
+  .hero p { margin-top: 6px; font-size: 0.9rem; opacity: .7; }
+
+  /* ── 主體 ── */
+  .container { flex: 1; max-width: 1360px; width: 100%; margin: 0 auto; padding: 36px 48px 80px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  #q {
+    flex: 1 1 260px; min-width: 0;
+    padding: 11px 15px; font-size: 0.9rem; font-family: inherit;
+    color: var(--text-primary); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 10px; outline: none;
+    transition: border-color .18s, box-shadow .18s;
   }
-  .filter-menu li:hover{background:var(--hover); color:var(--ink)}
-  .filter-menu li[aria-selected="true"]{color:var(--accent); font-weight:600; background:var(--accent-soft)}
-  .filter-menu .dot{width:8px; height:8px; border-radius:50%; background:var(--ink-3); flex:none}
-  .filter-menu .dot.demo{background:var(--demo)}
-  .filter-menu .dot.report{background:var(--report)}
-  .filter-menu .dot.analysis{background:var(--analysis)}
-  .filter-menu .n{margin-left:auto; font-size:.8rem; color:var(--ink-3); font-variant-numeric:tabular-nums}
+  #q:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(62,99,148,.13); }
+  #q::placeholder { color: var(--text-secondary); opacity: .75; }
 
-  .count{color:var(--ink-3); font-size:.85rem; margin:0 0 14px; min-height:1.4em}
-  .count .warn{color:var(--analysis)}
-
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; padding-bottom:56px}
-  .card{
-    display:flex; flex-direction:column; gap:10px; padding:18px;
-    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
-    text-decoration:none; color:inherit; transition:border-color .15s, transform .15s, box-shadow .15s;
+  /* 分類：單一按鈕 + 下拉 */
+  .filter { position: relative; flex: none; }
+  .filter-btn {
+    display: flex; align-items: center; gap: 9px;
+    padding: 11px 15px; font-size: 0.85rem; font-weight: 600; font-family: inherit;
+    cursor: pointer; color: var(--text-tag); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 10px;
+    transition: border-color .18s, color .18s;
   }
-  .card:hover{border-color:var(--accent); transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.07)}
-  .card-top{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
-  .badge{padding:3px 9px; font-size:.74rem; font-weight:600; border-radius:6px; letter-spacing:.02em}
-  .badge.demo{color:var(--demo); background:var(--demo-bg)}
-  .badge.report{color:var(--report); background:var(--report-bg)}
-  .badge.analysis{color:var(--analysis); background:var(--analysis-bg)}
-  .gid{font-size:.78rem; font-weight:600; color:var(--ink-3); font-variant-numeric:tabular-nums}
-  .ext{margin-left:auto; font-size:.72rem; color:var(--ink-3)}
-  .card h2{margin:0; font-size:1.02rem; font-weight:620; line-height:1.4}
-  .card p{margin:0; font-size:.88rem; color:var(--ink-2)}
-  .card-foot{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:auto; padding-top:4px}
-  .tag{font-size:.74rem; color:var(--ink-3); padding:2px 8px; border:1px solid var(--line); border-radius:5px}
-  .date{margin-left:auto; font-size:.76rem; color:var(--ink-3); font-variant-numeric:tabular-nums}
+  .filter-btn:hover { border-color: var(--accent-mid); color: var(--text-primary); }
+  .filter-btn[aria-expanded="true"] {
+    border-color: var(--accent-mid); color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(62,99,148,.13);
+  }
+  .filter-btn .dot, .filter-menu .dot {
+    width: 9px; height: 9px; border-radius: 50%; flex: none;
+    background: var(--text-secondary);
+  }
+  .dot.demo { background: var(--accent-4); }
+  .dot.analysis { background: var(--accent-1); }
+  .filter-btn .caret { color: var(--text-secondary); font-size: .62rem; transition: transform .18s; }
+  .filter-btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
 
-  .empty{padding:56px 20px; text-align:center; color:var(--ink-3); border:1px dashed var(--line); border-radius:var(--radius)}
+  .filter-menu {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 20; min-width: 244px;
+    list-style: none; padding: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; box-shadow: var(--shadow-hover);
+  }
+  .filter-menu[hidden] { display: none; }
+  .filter-menu li {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    font-size: 0.88rem; cursor: pointer; border-radius: 10px; color: var(--text-tag);
+    transition: background .18s;
+  }
+  .filter-menu li:hover { background: var(--bg); }
+  .filter-menu li[aria-selected="true"] {
+    background: var(--accent-dark); color: #fff; font-weight: 600;
+  }
+  .filter-menu li[aria-selected="true"] .n { color: rgba(255,255,255,.65); }
+  .filter-menu .n { margin-left: auto; font-size: .78rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 
-  @media (max-width:520px){
-    .filter, .filter-btn{width:100%}
-    .filter-menu{right:0}
+  .status-bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin: 22px 0 20px; font-size: .82rem; color: var(--text-secondary); min-height: 1.4em;
+  }
+  .status-bar .warn { color: #a8632a; }
+
+  /* ── 卡片 ── */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+  .card {
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 26px 24px 22px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    text-decoration: none; color: inherit;
+    transition: box-shadow .25s ease, transform .25s ease;
+  }
+  .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: var(--accent); border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .card.demo { --accent: var(--accent-4); }
+  .card.analysis { --accent: var(--accent-1); }
+
+  .card-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .badge {
+    padding: 3px 10px; font-size: .7rem; font-weight: 800;
+    letter-spacing: .3px; border-radius: 99px;
+  }
+  .badge.demo { color: #7d7248; background: #f6f3e8; }
+  .badge.analysis { color: #8f5a5a; background: #f7ecec; }
+  .gid { font-size: .76rem; font-weight: 700; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .ext { margin-left: auto; font-size: .7rem; color: var(--text-secondary); opacity: .8; }
+  .card h2 { font-size: 1.05rem; font-weight: 800; line-height: 1.45; }
+  .card p { font-size: .84rem; color: var(--text-secondary); line-height: 1.6; }
+  .card-foot { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: auto; padding-top: 6px; }
+  .tag {
+    font-size: .72rem; color: var(--text-tag); padding: 3px 9px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  }
+  .date { margin-left: auto; font-size: .74rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+  .empty {
+    padding: 60px 20px; text-align: center; font-size: .88rem;
+    color: var(--text-secondary); background: var(--surface);
+    border: 1px dashed var(--border); border-radius: var(--radius);
+  }
+
+  footer {
+    text-align: center; padding: 24px; font-size: .78rem;
+    color: var(--text-secondary); border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 32px 24px 28px; }
+    .hero h1 { font-size: 1.45rem; }
+    .container { padding: 24px 24px 60px; }
+    .grid { grid-template-columns: 1fr; }
+    .filter, .filter-btn { width: 100%; }
+    .filter-menu { right: 0; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="head-in">
-    <img class="logo" src="assets/favicon.svg" alt="" width="38" height="38">
+<div class="hero">
+  <div class="hero-in">
+    <img class="logo" src="assets/favicon.svg" alt="" width="44" height="44">
     <div>
       <h1>Jumbo Output</h1>
-      <p class="sub">工作上 Output 出去的網頁索引 — Demo Game、遊戲數據報告、競品分析</p>
+      <p>工作上 Output 出去的網頁索引 — Demogame、競品分析</p>
     </div>
   </div>
-</header>
+</div>
 
-<main class="wrap">
+<div class="container">
   <div class="controls">
     <input id="q" type="search" placeholder="搜尋標題、遊戲代號、說明、標籤…" autocomplete="off">
     <div class="filter">
@@ -143,9 +195,11 @@
     </div>
   </div>
 
-  <p class="count" id="count"></p>
+  <div class="status-bar" id="count"></div>
   <div class="grid" id="grid"></div>
-</main>
+</div>
+
+<footer>made with ☕ by 嘻嘻</footer>
 
 <script src="catalog.js"></script>
 <script>
@@ -158,23 +212,25 @@
 
   var CATS = [
     { key:"all",      label:"全部分類" },
-    { key:"demo",     label:"Demo Game" },
-    { key:"report",   label:"遊戲數據報告" },
+    { key:"demo",     label:"Demogame" },
     { key:"analysis", label:"競品分析" }
   ];
-  var CAT_LABEL = { demo:"Demo Game", report:"遊戲數據報告", analysis:"競品分析" };
+  var CAT_LABEL = { demo:"Demogame", analysis:"競品分析" };
 
-  var grid     = document.getElementById("grid");
-  var countEl  = document.getElementById("count");
-  var qEl      = document.getElementById("q");
-  var btn      = document.getElementById("filter-btn");
-  var menu     = document.getElementById("filter-menu");
-  var labelEl  = document.getElementById("filter-label");
-  var dotEl    = document.getElementById("filter-dot");
+  var DEFAULT_CAT = "demo";   // 進站預設顯示 Demogame
 
-  var cat = "all";
+  var grid    = document.getElementById("grid");
+  var countEl = document.getElementById("count");
+  var qEl     = document.getElementById("q");
+  var btn     = document.getElementById("filter-btn");
+  var menu    = document.getElementById("filter-menu");
+  var labelEl = document.getElementById("filter-label");
+  var dotEl   = document.getElementById("filter-dot");
+
+  var cat = DEFAULT_CAT;
   var items = (window.CATALOG || []).slice();
   var discoverNote = "";
+  var discovering = true;     // Demogame 掃描中，避免預設分類閃一下「沒有符合條件」
 
   function esc(s){
     return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
@@ -189,7 +245,6 @@
              String(a.title||"").localeCompare(String(b.title||""));
     });
   }
-
   function haystack(it){
     return [it.title, it.game, it.desc, CAT_LABEL[it.cat], (it.tags||[]).join(" ")]
       .join(" ").toLowerCase();
@@ -223,10 +278,7 @@
     render();
   }
 
-  btn.addEventListener("click", function(e){
-    e.stopPropagation();
-    setOpen(menu.hidden);
-  });
+  btn.addEventListener("click", function(e){ e.stopPropagation(); setOpen(menu.hidden); });
   menu.addEventListener("click", function(e){
     var li = e.target.closest("li[data-cat]");
     if (li) selectCat(li.dataset.cat);
@@ -246,20 +298,22 @@
 
     var parts = [];
     if (list.length) parts.push(list.length + " 筆" + (items.length !== list.length ? "（共 " + items.length + " 筆）" : ""));
-    if (discoverNote) parts.push('<span class="warn">' + esc(discoverNote) + "</span>");
+    if (discoverNote) parts.push('<span class="warn">' + esc(discoverNote) + '</span>');
     countEl.innerHTML = parts.join(" · ");
 
     if (!list.length){
-      grid.innerHTML = '<div class="empty">' +
-        (items.length ? "沒有符合條件的項目。" : "目錄還是空的 — 在 catalog.js 加入第一筆。") +
-        '</div>';
+      var msg;
+      if (discovering && !q && (cat === "all" || cat === "demo")) msg = "正在掃描 Demogame…";
+      else if (items.length) msg = "沒有符合條件的項目。";
+      else msg = "目錄還是空的 — 在 catalog.js 加入第一筆。";
+      grid.innerHTML = '<div class="empty">' + msg + '</div>';
       if (!menu.hidden) buildMenu();
       return;
     }
 
     grid.innerHTML = list.map(function(it){
       var ext = isExternal(it.url);
-      return '<a class="card" href="' + esc(it.url) + '"' +
+      return '<a class="card ' + esc(it.cat) + '" href="' + esc(it.url) + '"' +
              (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
         '<div class="card-top">' +
           '<span class="badge ' + esc(it.cat) + '">' + esc(CAT_LABEL[it.cat] || it.cat) + '</span>' +
@@ -278,12 +332,78 @@
     if (!menu.hidden) buildMenu();
   }
 
+  /* ---------- 遊戲類型：統一成 Cluster Pay / Pay Anywhere / N Ways / N Lines ----------
+     判定依序看 game_rule.md 的「遊戲類型」「中獎方式」，Ways / Lines 的數字取自
+     「最小 / 最大 Ways」或中獎方式裡的線數；額外特色（Cascade 等）接在後面。
+     邏輯與 Cworld/studio/demogame/index.html 的 normalizePlay 相同。            */
+  function normalizePlay(type, winWay, waysCell){
+    var all = type + " " + winWay + " " + waysCell;
+    var fmt = function(n){ return Number(n).toLocaleString("en-US"); };
+
+    var mech = "";
+    if (/cluster/i.test(all)) {
+      mech = "Cluster Pay";
+    } else if (/count\s*anywhere|pay\s*anywhere|全盤面|整個盤面/i.test(all)) {
+      mech = "Pay Anywhere";
+    } else if (/megaways|ways|way\s*game/i.test(all)) {
+      var nums = (waysCell.match(/[\d,]{3,}/g) || [])
+        .map(function(s){ return Number(s.replace(/,/g, "")); })
+        .filter(Boolean);
+      if (nums.length >= 2) mech = fmt(Math.min.apply(null, nums)) + "–" + fmt(Math.max.apply(null, nums)) + " Ways";
+      else if (nums.length === 1) mech = fmt(nums[0]) + " Ways";
+      else mech = "Ways";
+    } else {
+      var ln = all.match(/(\d+)\s*(?:line|lines|線|條線)/i);
+      if (ln) mech = ln[1] + " Lines";
+    }
+    if (!mech) return type;   // 認不出來就照原文顯示
+
+    // 附加特色：拆「遊戲類型」，去掉 Video Slot 與已被 mech 表達的字眼。
+    // 只在「/」與「前後有空白的破折號」處切開，才不會把 2,025–32,400 這種區間切斷
+    var extras = type.split(/\s*\/\s*|\s+[-–—]\s+/).map(function(s){ return s.trim(); })
+      .filter(function(s){
+        return s && !/^video\s*slot$/i.test(s)
+          && !/^cluster\s*pays?$/i.test(s)
+          && !/^count\s*anywhere$/i.test(s)
+          && !/^pay\s*anywhere$/i.test(s)
+          && !/^[\d,\s–—-]*ways?$/i.test(s)
+          && !/^[\d,\s–—-]*lines?$/i.test(s)
+          && !/^[\d,–—-]+$/.test(s);
+      });
+
+    var seen = {};
+    return [mech].concat(extras).filter(function(s){
+      var k = s.toLowerCase().replace(/[\s,]/g, "");
+      if (seen[k]) return false;
+      seen[k] = true;
+      return true;
+    }).join(" / ");
+  }
+
+  // 從遊戲資料夾的 game_rule.md 讀「遊戲類型」「中獎方式」「最小 / 最大 Ways」
+  // 表格列長相：| 遊戲類型 | Video Slot - 1,024 Ways / Cascade |
+  function fetchPlay(gameBase){
+    return fetch(gameBase + "/game_rule.md")
+      .then(function(res){
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.text();
+      })
+      .then(function(text){
+        var cell = function(label){
+          var m = text.match(new RegExp("\\|\\s*" + label + "\\s*\\|([^|\\n]*)\\|"));
+          var v = m ? m[1].trim().replace(/^`|`$/g, "") : "";
+          return (!v || v === "-") ? "" : v;
+        };
+        return normalizePlay(cell("遊戲類型"), cell("中獎方式"), cell("最小 / 最大 Ways"));
+      })
+      .catch(function(){ return ""; });
+  }
+
   /* ---------- Demo 自動掃描 ---------- */
   function parseFolderName(name){
     var m = name.match(/^([A-Za-z0-9]+)_(.+)$/);
     return m ? { id:m[1], title:m[2] } : { id:"", title:name };
   }
-
   function fetchJson(url){
     return fetch(url, { headers:{ Accept:"application/vnd.github+json" } })
       .then(function(res){
@@ -306,7 +426,7 @@
       })
       .then(function(tree){
         var nodes = tree.tree || [];
-        // 頂層「代號_名稱」資料夾（自動排除 其他／未完成 等中文開頭目錄）
+        // 頂層「代號_名稱」資料夾（中文開頭的 其他/ 因此自動排除）
         var folders = nodes.filter(function(n){
           return n.type === "tree" && /^[A-Za-z0-9]+_[^/]+$/.test(n.path);
         }).map(function(n){ return n.path; });
@@ -318,37 +438,42 @@
           if (m) hasDemo[m[1]] = true;
         });
 
-        var added = 0;
+        var pending = [];
         folders.forEach(function(folder){
           if (!hasDemo[folder]) return;
-          var url = PAGES_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder) + "/";
+          var gameBase = PAGES_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder);
+          var url = gameBase + "/";
           if (known[url]) return;
           var info = parseFolderName(folder);
-          items.push({
+          var entry = {
             title: info.id ? info.id + " " + info.title : info.title,
-            url: url, cat: "demo", game: info.id,
-            desc: "可直接於瀏覽器試玩的離線 demo",
-            tags: ["自動掃描"]
-          });
-          added++;
+            url: url, cat: "demo", game: info.id, desc: "", tags: []
+          };
+          items.push(entry);
+          pending.push({ entry: entry, gameBase: gameBase });
         });
 
-        if (tree.truncated) discoverNote = "GitHub 目錄樹過大被截斷，demo 清單可能不完整";
+        if (tree.truncated) discoverNote = "GitHub 目錄樹過大被截斷，Demogame 清單可能不完整";
+        discovering = false;   // demo 清單已定，只剩遊戲類型待補
         sortItems();
         render();
-        return added;
+
+        // 逐款讀 game_rule.md 補上遊戲類型（同源的 Pages 檔案，不吃 API 額度）
+        return Promise.all(pending.map(function(p){
+          return fetchPlay(p.gameBase).then(function(play){ p.entry.desc = play; });
+        })).then(render);
       })
       .catch(function(err){
-        discoverNote = "Demo 自動掃描失敗（" + err.message + "）";
+        discovering = false;
+        discoverNote = "Demogame 自動掃描失敗（" + err.message + "）";
         render();
-        return 0;
       });
   }
 
   /* ---------- 啟動 ---------- */
   qEl.addEventListener("input", render);
   sortItems();
-  selectCat("all");
+  selectCat(DEFAULT_CAT);
   discoverDemos();
 })();
 </script>
