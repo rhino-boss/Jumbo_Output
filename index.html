@@ -207,11 +207,18 @@
 <script src="catalog.js"></script>
 <script>
 (function(){
-  /* ---------- Demo 自動掃描設定（沿用 Cworld/studio/demogame 的做法） ---------- */
+  /* ---------- 自動掃描設定（沿用 Cworld/studio/demogame 的做法） ----------
+     兩個分類都從 rhino-boss/Jumbo 掃出來，所以新增內容不需要動這個倉庫：
+       Demogame  ← Project/Slots/<代號_名稱>/index.html
+       競品分析   ← Project/競品分析/遊戲數據_*.html                        */
   var REPO_OWNER = "rhino-boss";
   var REPO_NAME  = "Jumbo";
   var SLOTS_PATH = "Project/Slots";
+  var ANALYSIS_DIR = "競品分析";
   var PAGES_BASE = "https://" + REPO_OWNER + ".github.io/" + REPO_NAME;
+  var API_BASE   = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME;
+  var ANALYSIS_API  = API_BASE + "/contents/Project/" + encodeURIComponent(ANALYSIS_DIR);
+  var ANALYSIS_BASE = PAGES_BASE + "/Project/" + encodeURIComponent(ANALYSIS_DIR);
 
   var CATS = [
     { key:"all",      label:"全部分類" },
@@ -232,8 +239,8 @@
 
   var cat = DEFAULT_CAT;
   var items = (window.CATALOG || []).slice();
-  var discoverNote = "";
-  var discovering = true;     // Demogame 掃描中，避免預設分類閃一下「沒有符合條件」
+  var notes = [];             // 掃描失敗／不完整的提示
+  var loading = 2;            // 兩個分類各一，都回來前不要顯示「沒有符合條件」
 
   function esc(s){
     return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
@@ -301,14 +308,14 @@
 
     var parts = [];
     if (list.length) parts.push(list.length + " 筆" + (items.length !== list.length ? "（共 " + items.length + " 筆）" : ""));
-    if (discoverNote) parts.push('<span class="warn">' + esc(discoverNote) + '</span>');
+    notes.forEach(function(n){ parts.push('<span class="warn">' + esc(n) + '</span>'); });
     countEl.innerHTML = parts.join(" · ");
 
     if (!list.length){
       var msg;
-      if (discovering && !q && (cat === "all" || cat === "demo")) msg = "正在掃描 Demogame…";
+      if (loading > 0 && !q) msg = "正在載入清單…";
       else if (items.length) msg = "沒有符合條件的項目。";
-      else msg = "目錄還是空的 — 在 catalog.js 加入第一筆。";
+      else msg = "掃不到任何內容 — 檢查 rhino-boss/Jumbo 的 Pages 是否正常。";
       grid.innerHTML = '<div class="empty">' + msg + '</div>';
       if (!menu.hidden) buildMenu();
       return;
@@ -420,12 +427,11 @@
     var known = {};
     items.forEach(function(i){ if (i.cat === "demo") known[i.url] = true; });
 
-    return fetchJson("https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/contents/Project")
+    return fetchJson(API_BASE + "/contents/Project")
       .then(function(proj){
         var slots = proj.filter(function(i){ return i.type === "dir" && i.name === "Slots"; })[0];
         if (!slots) throw new Error("找不到 Slots 目錄");
-        return fetchJson("https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME +
-                         "/git/trees/" + slots.sha + "?recursive=1");
+        return fetchJson(API_BASE + "/git/trees/" + slots.sha + "?recursive=1");
       })
       .then(function(tree){
         var nodes = tree.tree || [];
@@ -456,8 +462,8 @@
           pending.push({ entry: entry, gameBase: gameBase });
         });
 
-        if (tree.truncated) discoverNote = "GitHub 目錄樹過大被截斷，Demogame 清單可能不完整";
-        discovering = false;   // demo 清單已定，只剩遊戲類型待補
+        if (tree.truncated) notes.push("GitHub 目錄樹過大被截斷，Demogame 清單可能不完整");
+        loading--;             // demo 清單已定，只剩遊戲類型待補
         sortItems();
         render();
 
@@ -467,10 +473,108 @@
         })).then(render);
       })
       .catch(function(err){
-        discovering = false;
-        discoverNote = "Demogame 自動掃描失敗（" + err.message + "）";
+        loading--;
+        notes.push("Demogame 掃描失敗（" + err.message + "）");
         render();
       });
+  }
+
+  /* ---------- 競品分析：解析 Project/競品分析/README.md 的表格 ----------
+     表一（每份報告一列）：
+       | 遊戲 | 廠商 | 付費轉 | 報告日期 | 格式版本 | 報告 | md 正本位置 |
+       | Super Ace | JILI | 166,050 | 2026-08-26 | 現行 | [開啟](遊戲數據_Super_Ace.html) | ... |
+     表二（遊戲為欄）：
+       | 指標 | Super Ace | Lucky Neko | ... |
+       | **總 RTP** | **94.158%** | ... |
+       | 官方 RTP | 96.50% | ... |
+     解析失敗不影響上架，只是卡片少了說明。                                */
+  function parseAnalysisReadme(text){
+    var out = { byFile:{}, rtp:{}, official:{} };
+    var lines = text.split(/\r?\n/);
+    var cells = function(line){
+      return line.replace(/^\s*\|/, "").replace(/\|\s*$/, "").split("|")
+                 .map(function(s){ return s.replace(/\*\*/g, "").trim(); });
+    };
+    var isRow = function(l){ return /^\s*\|/.test(l || ""); };
+
+    for (var i = 0; i < lines.length; i++){
+      // 表一：以「| 遊戲 |」開頭
+      if (/^\s*\|\s*遊戲\s*\|/.test(lines[i])){
+        for (var j = i + 2; j < lines.length && isRow(lines[j]); j++){
+          var c = cells(lines[j]);
+          var link = (c[5] || "").match(/\(([^)]+\.html)\)/);
+          if (!link) continue;
+          out.byFile[link[1]] = { name:c[0], vendor:c[1], spins:c[2], date:c[3] };
+        }
+      }
+      // 表二：以「| 指標 |」開頭，第一列是遊戲名
+      if (/^\s*\|\s*指標\s*\|/.test(lines[i])){
+        var cols = cells(lines[i]).slice(1);
+        for (var k = i + 2; k < lines.length && isRow(lines[k]); k++){
+          var r = cells(lines[k]);
+          var label = r[0];
+          var vals = r.slice(1);
+          if (label === "總 RTP")   cols.forEach(function(g, n){ out.rtp[g] = vals[n]; });
+          if (label === "官方 RTP") cols.forEach(function(g, n){ out.official[g] = vals[n]; });
+        }
+      }
+    }
+    return out;
+  }
+
+  function analysisDesc(info, meta){
+    var g = info.name;
+    var p = [];
+    var rtp = meta.rtp[g], off = meta.official[g];
+    if (rtp && rtp !== "⏳"){
+      p.push("總 RTP " + rtp + (off && off !== "⏳" ? "／官方 " + off : ""));
+    }
+    if (info.spins) p.push("付費轉 " + info.spins);
+    return p.join("，");
+  }
+
+  function discoverAnalysis(){
+    var known = {};
+    items.forEach(function(i){ if (i.cat === "analysis") known[i.url] = true; });
+
+    // 目錄清單走 API；README 是同源的 Pages 靜態檔，不吃 API 額度
+    return Promise.all([
+      fetchJson(ANALYSIS_API),
+      fetch(ANALYSIS_BASE + "/README.md")
+        .then(function(r){ return r.ok ? r.text() : ""; })
+        .catch(function(){ return ""; })
+    ]).then(function(res){
+      var list = res[0], meta = parseAnalysisReadme(res[1] || "");
+
+      list.filter(function(i){
+        return i.type === "file" && /^遊戲數據_.+\.html$/.test(i.name);
+      }).forEach(function(f){
+        var url = ANALYSIS_BASE + "/" + encodeURIComponent(f.name);
+        if (known[url]) return;
+        var info = meta.byFile[f.name] || {};
+        if (!info.name){
+          // README 沒列到這份，就從檔名反推遊戲名
+          info.name = f.name.replace(/^遊戲數據_/, "").replace(/\.html$/, "").replace(/_/g, " ");
+          notes.push("README 未列出 " + info.name + "，卡片資訊從檔名推得");
+        }
+        items.push({
+          title: info.name + " 遊戲數據",
+          url: url, cat: "analysis",
+          game: info.vendor || "",
+          desc: analysisDesc(info, meta),
+          date: info.date || "",
+          tags: info.vendor ? [info.vendor] : []
+        });
+      });
+
+      loading--;
+      sortItems();
+      render();
+    }).catch(function(err){
+      loading--;
+      notes.push("競品分析掃描失敗（" + err.message + "）");
+      render();
+    });
   }
 
   /* ---------- 啟動 ---------- */
@@ -478,6 +582,7 @@
   sortItems();
   selectCat(DEFAULT_CAT);
   discoverDemos();
+  discoverAnalysis();
 })();
 </script>
 </body>
