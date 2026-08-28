@@ -1,4 +1,4 @@
-# 老虎機遊戲試玩（Jumbo_Output）
+# Omniplay（Jumbo_Output）
 
 工作成果的網頁索引站。首頁 `index.html` 是目錄，卡片點進去開對應網頁。
 
