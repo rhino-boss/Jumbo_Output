@@ -19,6 +19,7 @@ assets/         favicon（深藍底白 J）
 |---|---|---|
 | Demogame | `Project/Slots/<代號_名稱>/index.html` | `rhino-boss.github.io/Jumbo/Project/Slots/<資料夾>/` |
 | 競品分析 | `Project/競品分析/遊戲數據_*.html` | `rhino-boss.github.io/Jumbo/Project/競品分析/<檔名>` |
+| 其他報告 | `catalog.js` 手動收錄（不掃描） | 依項目而定 |
 
 **所以新增內容不需要動這個倉庫** — 把檔案放進 Jumbo 專案對應位置並 push，
 這裡重新整理就會出現。
@@ -76,7 +77,7 @@ GitHub API 共 3 次呼叫（未登入限每小時 60 次）：
 
 ## 分類篩選
 
-一顆按鈕，點開選單選擇：**全部分類 / Demogame / 競品分析**，
+一顆按鈕，點開選單選擇：**全部分類 / Demogame / 競品分析 / 其他報告**，
 選單右側顯示各分類筆數，按鈕左側色點跟著選取分類變色。支援點外部與 Esc 關閉。
 
 **進站預設顯示 Demogame**（`index.html` 裡的 `DEFAULT_CAT`）。
@@ -94,6 +95,7 @@ Helvetica Neue / PingFang TC 字族、海軍藍漸層 hero（`#2a3d5c → #3e639
 | 全部分類 | 灰 `#9ba3af` | `--cat-all` | — |
 | Demogame | 藍 `#4a7fd0` | `--cat-demo` | `#2f5f9e` / `#e8f0fb` |
 | 競品分析 | 紅 `#d9534f` | `--cat-analysis` | `#b03a36` / `#fbeceb` |
+| 其他報告 | 綠 `#3f9d6b` | `--cat-report` | `#2e7d54` / `#e6f2ea` |
 
 沒有做亮／深自動切換，是固定亮色。
 

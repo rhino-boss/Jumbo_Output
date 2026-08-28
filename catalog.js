@@ -6,10 +6,11 @@
      Demogame  ← Project/Slots/<代號_名稱>/index.html
      競品分析   ← Project/競品分析/遊戲數據_*.html
 
-   只有要額外掛「不在那兩個位置」的網頁時才寫在這裡。欄位：
+   「其他報告」分類沒有自動掃描，項目全部寫在這裡。
+   另外兩個分類只有要額外掛「不在那兩個位置」的網頁時才寫。欄位：
      title   必填  卡片標題
      url     必填  站內相對路徑或完整外部網址（https://...）
-     cat     必填  "demo" | "analysis"
+     cat     必填  "demo" | "analysis" | "report"
      game    選填  遊戲代號或廠商，例 "H016"、"PG"
      desc    選填  一行說明
      date    選填  "YYYY-MM-DD"，用於排序與顯示
@@ -17,4 +18,12 @@
 
    這裡寫的網址若與自動掃描到的相同，會自動去重（以手動的為準）。
    ============================================================ */
-window.CATALOG = [];
+window.CATALOG = [
+  {
+    title: "老手救援 C 版 機制說明",
+    url: "https://rhino-boss.github.io/Jumbo/Project/System/機制說明_老手救援C版.html",
+    cat: "report",
+    desc: "雙池救援機制：判定條件、20×／50× 獎項、遊戲歷程",
+    date: "2026-08-28"
+  }
+];

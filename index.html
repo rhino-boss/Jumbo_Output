@@ -26,6 +26,7 @@
     --cat-all: #9ba3af;        /* 灰 — 全部分類 */
     --cat-demo: #4a7fd0;       /* 藍 — Demogame */
     --cat-analysis: #d9534f;   /* 紅 — 競品分析 */
+    --cat-report: #3f9d6b;     /* 綠 — 其他報告 */
 
     --accent-dark: #2a3d5c;    /* hero 起 */
     --accent-mid: #3e6394;     /* hero 迄 */
@@ -92,6 +93,7 @@
   }
   .dot.demo { background: var(--cat-demo); }
   .dot.analysis { background: var(--cat-analysis); }
+  .dot.report { background: var(--cat-report); }
   .filter-btn .caret { color: var(--text-secondary); font-size: .62rem; transition: transform .18s; }
   .filter-btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
 
@@ -138,6 +140,7 @@
   }
   .card.demo { --accent: var(--cat-demo); }
   .card.analysis { --accent: var(--cat-analysis); }
+  .card.report { --accent: var(--cat-report); }
 
   .card-top { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
   .badge {
@@ -146,6 +149,7 @@
   }
   .badge.demo { color: #2f5f9e; background: #e8f0fb; }
   .badge.analysis { color: #b03a36; background: #fbeceb; }
+  .badge.report { color: #2e7d54; background: #e6f2ea; }
   .gid { font-size: .72rem; font-weight: 700; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
   .ext { margin-left: auto; font-size: .66rem; color: var(--text-secondary); opacity: .8; }
   .card h2 { font-size: .95rem; font-weight: 800; line-height: 1.4; }
@@ -222,9 +226,10 @@
   var CATS = [
     { key:"all",      label:"全部分類" },
     { key:"demo",     label:"Demogame" },
-    { key:"analysis", label:"競品分析" }
+    { key:"analysis", label:"競品分析" },
+    { key:"report",   label:"其他報告" }
   ];
-  var CAT_LABEL = { demo:"Demogame", analysis:"競品分析" };
+  var CAT_LABEL = { demo:"Demogame", analysis:"競品分析", report:"其他報告" };
 
   var DEFAULT_CAT = "demo";   // 進站預設顯示 Demogame
 
