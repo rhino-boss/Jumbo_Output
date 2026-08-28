@@ -87,12 +87,13 @@ GitHub API 共 3 次呼叫（未登入限每小時 60 次）：
 沿用 Cworld 的設計語言，底色改為淺藍：頁面底 `#eef2f9`、白卡、
 `0 2px 12px rgba(0,0,0,.07)` 柔和陰影（hover 換 `0 8px 32px rgba(0,0,0,.13)` 並上浮 3px）、
 Helvetica Neue / PingFang TC 字族、海軍藍漸層 hero（`#2a3d5c → #3e6394`），
-卡片頂端 3px 色條用 Cworld 的粉彩標分類：
+分類色一組三色，**色點、卡片頂端 3px 色條、badge 三處共用**：
 
-| 分類 | 色條 |
-|---|---|
-| Demogame | `--accent-4` `#d4cba8`（沙） |
-| 競品分析 | `--accent-1` `#d4a8a8`（玫瑰） |
+| 分類 | 色 | 變數 | badge 文字／底 |
+|---|---|---|---|
+| 全部分類 | 灰 `#9ba3af` | `--cat-all` | — |
+| Demogame | 藍 `#4a7fd0` | `--cat-demo` | `#2f5f9e` / `#e8f0fb` |
+| 競品分析 | 紅 `#d9534f` | `--cat-analysis` | `#b03a36` / `#fbeceb` |
 
 沒有做亮／深自動切換，是固定亮色。
 

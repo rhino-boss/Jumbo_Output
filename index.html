@@ -22,9 +22,10 @@
     --text-secondary: #6b6b6b;
     --text-tag: #4a4a4a;
 
-    /* Cworld 的粉彩，這裡用來標分類 */
-    --accent-1: #d4a8a8;   /* 玫瑰 — 競品分析 */
-    --accent-4: #d4cba8;   /* 沙   — Demogame */
+    /* 分類色：色點、卡片頂端色條、badge 三處共用同一組 */
+    --cat-all: #9ba3af;        /* 灰 — 全部分類 */
+    --cat-demo: #4a7fd0;       /* 藍 — Demogame */
+    --cat-analysis: #d9534f;   /* 紅 — 競品分析 */
 
     --accent-dark: #2a3d5c;    /* hero 起 */
     --accent-mid: #3e6394;     /* hero 迄 */
@@ -87,10 +88,10 @@
   }
   .filter-btn .dot, .filter-menu .dot {
     width: 9px; height: 9px; border-radius: 50%; flex: none;
-    background: var(--text-secondary);
+    background: var(--cat-all);
   }
-  .dot.demo { background: var(--accent-4); }
-  .dot.analysis { background: var(--accent-1); }
+  .dot.demo { background: var(--cat-demo); }
+  .dot.analysis { background: var(--cat-analysis); }
   .filter-btn .caret { color: var(--text-secondary); font-size: .62rem; transition: transform .18s; }
   .filter-btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
 
@@ -135,16 +136,16 @@
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
     background: var(--accent); border-radius: 12px 12px 0 0;
   }
-  .card.demo { --accent: var(--accent-4); }
-  .card.analysis { --accent: var(--accent-1); }
+  .card.demo { --accent: var(--cat-demo); }
+  .card.analysis { --accent: var(--cat-analysis); }
 
   .card-top { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
   .badge {
     padding: 2px 8px; font-size: .66rem; font-weight: 800;
     letter-spacing: .3px; border-radius: 99px;
   }
-  .badge.demo { color: #7d7248; background: #f6f3e8; }
-  .badge.analysis { color: #8f5a5a; background: #f7ecec; }
+  .badge.demo { color: #2f5f9e; background: #e8f0fb; }
+  .badge.analysis { color: #b03a36; background: #fbeceb; }
   .gid { font-size: .72rem; font-weight: 700; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
   .ext { margin-left: auto; font-size: .66rem; color: var(--text-secondary); opacity: .8; }
   .card h2 { font-size: .95rem; font-weight: 800; line-height: 1.4; }
