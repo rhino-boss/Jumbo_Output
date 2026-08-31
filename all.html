@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#2a3d5c">
+<link rel="stylesheet" href="assets/style.css">
+<title>Omniplay</title>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Omniplay</a>
+  <span class="sep">/</span>
+  <span class="current" id="crumb">…</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-in">
+    <img class="logo" src="assets/favicon.svg" alt="" width="44" height="44">
+    <div>
+      <h1 id="title">…</h1>
+      <p id="subtitle"></p>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <input id="q" type="search" placeholder="搜尋…" autocomplete="off">
+  <div class="notes" id="notes" hidden></div>
+
+  <div class="toolbar">
+    <span id="count">正在載入…</span>
+    <div class="spacer"></div>
+    <span>排序</span>
+    <button class="sec-btn" type="button" id="sort-key" title="點一下切換排序依據"></button>
+    <button class="sec-btn" type="button" id="sort-dir" title="切換升冪／降冪">↓</button>
+    <button class="sec-btn" type="button" id="view-toggle"></button>
+  </div>
+
+  <div id="body"></div>
+</div>
+
+<footer>made with ☕ by c</footer>
+
+<script src="catalog.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  /* 四個分類共用這一頁，用 ?cat= 決定內容。
+     每個分類有兩個排序依據，用同一顆按鈕來回切換。
+     預設排序刻意各自指定，讓完整頁的順序與首頁看到的一致 ——
+     常用連結若預設按名稱排，catalog.js 裡排好的順序就白排了。 */
+  var CATS = {
+    demo: {
+      label: "Demogame", sub: "老虎機遊戲試玩",
+      placeholder: "搜尋遊戲名稱、代號、玩法、版本…",
+      unit: "款",
+      sorts: [{ key: "date", label: "更新時間" }, { key: "id", label: "代號" }],
+      def: { key: "id", desc: true }
+    },
+    analysis: {
+      label: "分析報告", sub: "競品遊戲的數據分析",
+      placeholder: "搜尋遊戲名稱、廠商、RTP…",
+      unit: "份",
+      sorts: [{ key: "date", label: "報告日期" }, { key: "title", label: "名稱" }],
+      def: { key: "date", desc: true }
+    },
+    report: {
+      label: "其他報告", sub: "機制說明與專題報告",
+      placeholder: "搜尋標題、說明…",
+      unit: "份",
+      sorts: [{ key: "date", label: "日期" }, { key: "title", label: "名稱" }],
+      def: { key: "date", desc: true }
+    },
+    links: {
+      label: "常用連結", sub: "常用的內外部網頁",
+      placeholder: "搜尋名稱、分群…",
+      unit: "個",
+      sorts: [{ key: "order", label: "預設順序" }, { key: "title", label: "名稱" }],
+      def: { key: "order", desc: false }
+    }
+  };
+  var VIEWS = [{ key: "list", label: "☰ 清單" }, { key: "card", label: "▦ 卡片" }];
+
+  var cat = (function () {
+    var m = String(location.search || "").match(/[?&]cat=([a-z]+)/);
+    return (m && CATS[m[1]]) ? m[1] : "demo";
+  })();
+  var C = CATS[cat];
+
+  var SORT_KEY = "omniplay-sort-" + cat;
+  var VIEW_KEY = "omniplay-view-" + cat;
+
+  var qEl = document.getElementById("q");
+  var body = document.getElementById("body");
+  var countEl = document.getElementById("count");
+  var keyBtn = document.getElementById("sort-key");
+  var dirBtn = document.getElementById("sort-dir");
+  var viewBtn = document.getElementById("view-toggle");
+
+  document.title = C.label + " — Omniplay";
+  document.getElementById("crumb").textContent = C.label;
+  document.getElementById("title").textContent = C.label;
+  document.getElementById("subtitle").textContent = C.sub;
+  qEl.placeholder = C.placeholder;
+
+  /* 預設：清單檢視 ＋ 各分類自己的 def 排序 */
+  var saved = (function () {
+    try { return JSON.parse(localStorage.getItem(SORT_KEY) || "{}"); } catch (e) { return {}; }
+  })();
+  var sortKey = saved.key && C.sorts.some(function (s) { return s.key === saved.key; })
+    ? saved.key : C.def.key;
+  var sortDesc = typeof saved.desc === "boolean" ? saved.desc : C.def.desc;
+  var view = (function () {
+    try { return localStorage.getItem(VIEW_KEY) === "card" ? "card" : "list"; }
+    catch (e) { return "list"; }
+  })();
+
+  function persist() {
+    try {
+      localStorage.setItem(SORT_KEY, JSON.stringify({ key: sortKey, desc: sortDesc }));
+      localStorage.setItem(VIEW_KEY, view);
+    } catch (e) {}
+  }
+
+  var items = [];        // 統一成 listCard／rowItem 吃的形狀
+  var games = [];        // demo 才用（卡片模式要原始資料）
+  var loading = true;
+
+  function sorted(list) {
+    var out = list.slice();
+    out.sort(function (a, b) {
+      var d = 0;
+      if (sortKey === "order") d = (a._i || 0) - (b._i || 0);
+      else if (sortKey === "id") d = String(a.game || a.title).localeCompare(String(b.game || b.title));
+      else if (sortKey === "title") d = String(a.title).localeCompare(String(b.title));
+      else d = String(a.date || "").localeCompare(String(b.date || ""));
+      d = sortDesc ? -d : d;
+      // 同分固定用標題遞增，切換方向時同分項目的順序才不會跟著顛倒
+      return d || String(a.title).localeCompare(String(b.title));
+    });
+    return out;
+  }
+
+  function render() {
+    var q = qEl.value.trim().toLowerCase();
+    var list = sorted(items.filter(function (it) {
+      return !q || Omni.haystackOf(it).indexOf(q) !== -1;
+    }));
+
+    countEl.textContent = loading
+      ? "正在載入…"
+      : list.length + " " + C.unit + (items.length !== list.length ? "（共 " + items.length + " " + C.unit + "）" : "");
+
+    var box = document.getElementById("notes");
+    if (Omni.notes.length) {
+      box.hidden = false;
+      box.innerHTML = Omni.notes.map(function (n) { return '<div>⚠ ' + Omni.esc(n) + '</div>'; }).join("");
+    } else { box.hidden = true; }
+
+    keyBtn.textContent = "⇅ " + C.sorts.filter(function (s) { return s.key === sortKey; })[0].label;
+    dirBtn.textContent = sortDesc ? "↓" : "↑";
+    viewBtn.textContent = VIEWS.filter(function (v) { return v.key !== view; })[0].label;
+
+    if (loading && !items.length) {
+      body.className = "";
+      body.innerHTML = '<div class="sec-empty">正在載入…</div>';
+      return;
+    }
+    if (!list.length) {
+      body.className = "";
+      body.innerHTML = '<div class="sec-empty">' + (q ? "沒有符合的項目。" : "目前沒有內容。") + '</div>';
+      return;
+    }
+
+    if (view === "list") {
+      body.className = "rows";
+      body.innerHTML = list.map(Omni.rowItem).join("");
+      return;
+    }
+
+    // 卡片模式：Demogame 用遊戲卡、常用連結用連結列、其餘用一般卡
+    if (cat === "demo") {
+      var byUrl = {};
+      games.forEach(function (g) { byUrl[g.playUrl] = g; });
+      var newest = {};
+      games.slice().sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); })
+        .slice(0, 3).forEach(function (g) { if (g.updated) newest[g.folder] = true; });
+      body.className = "grid";
+      body.innerHTML = list.map(function (it) {
+        var g = byUrl[it.url];
+        return g ? Omni.gameCard(g, !!newest[g.folder]) : Omni.listCard(it);
+      }).join("");
+    } else if (cat === "links") {
+      body.className = "link-grid";
+      body.innerHTML = list.map(Omni.linkCard).join("");
+    } else {
+      body.className = "grid";
+      body.innerHTML = list.map(Omni.listCard).join("");
+    }
+  }
+
+  keyBtn.addEventListener("click", function () {
+    var i = C.sorts.map(function (s) { return s.key; }).indexOf(sortKey);
+    sortKey = C.sorts[(i + 1) % C.sorts.length].key;
+    persist(); render();
+  });
+  dirBtn.addEventListener("click", function () { sortDesc = !sortDesc; persist(); render(); });
+  viewBtn.addEventListener("click", function () {
+    view = view === "list" ? "card" : "list";
+    persist(); render();
+  });
+  qEl.addEventListener("input", render);
+
+  render();
+
+  /* ---------- 載入資料 ---------- */
+  function manualOf(k) {
+    return (window.CATALOG || []).filter(function (i) { return i.cat === k; })
+      .map(function (i, n) { i._i = n; return i; });
+  }
+
+  if (cat === "demo") {
+    Omni.loadGames().then(function (g) {
+      games = g;
+      items = g.map(Omni.gameAsItem);
+      loading = false; render();
+    });
+  } else if (cat === "analysis") {
+    Omni.loadAnalysis().then(function (a) {
+      items = a; loading = false; render();
+    });
+  } else {
+    items = manualOf(cat);
+    loading = false; render();
+  }
+})();
+</script>
+</body>
+</html>

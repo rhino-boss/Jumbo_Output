@@ -59,7 +59,7 @@
       <span class="n" id="n-demo"></span>
       <div class="sec-actions">
         <button class="sec-btn" data-more="demo" type="button" hidden></button>
-        <a class="sec-link" href="games.html">完整頁 →</a>
+        <a class="sec-link" href="all.html?cat=demo">完整頁 →</a>
       </div>
     </div>
     <div id="demo-body"></div>
@@ -73,6 +73,7 @@
       <span class="n" id="n-analysis"></span>
       <div class="sec-actions">
         <button class="sec-btn" data-more="analysis" type="button" hidden></button>
+        <a class="sec-link" href="all.html?cat=analysis">完整頁 →</a>
       </div>
     </div>
     <div class="grid" id="analysis-body"></div>
@@ -86,6 +87,7 @@
       <span class="n" id="n-report"></span>
       <div class="sec-actions">
         <button class="sec-btn" data-more="report" type="button" hidden></button>
+        <a class="sec-link" href="all.html?cat=report">完整頁 →</a>
       </div>
     </div>
     <div class="grid" id="report-body"></div>
@@ -99,6 +101,7 @@
       <span class="n" id="n-links"></span>
       <div class="sec-actions">
         <button class="sec-btn" data-more="links" type="button" hidden></button>
+        <a class="sec-link" href="all.html?cat=links">完整頁 →</a>
       </div>
     </div>
     <div class="link-grid" id="links-body"></div>
@@ -204,7 +207,7 @@
     var newest = {};
     list.slice(0, 3).forEach(function (g) { if (g.updated) newest[g.folder] = true; });
 
-    // 首頁固定用遊戲卡；卡片／清單切換只在完整頁 games.html 提供
+    // 首頁固定用遊戲卡；卡片／清單切換只在完整頁 all.html 提供
     body.className = "rail";
     body.innerHTML = limit(list, "demo", q).map(function (g) {
       return Omni.gameCard(g, !!newest[g.folder]);

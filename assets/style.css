@@ -287,6 +287,41 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
 .card h2 { font-size: .95rem; font-weight: 800; line-height: 1.4; }
 .card p { font-size: .79rem; color: var(--text-secondary); line-height: 1.5; }
 
+/* ── 清單模式：一列一筆 ── */
+.rows { display: flex; flex-direction: column; gap: 8px; }
+.row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  text-decoration: none; color: inherit;
+  transition: box-shadow .15s, transform .15s;
+}
+.row:hover { box-shadow: 0 6px 18px rgba(0,0,0,.10); transform: translateY(-1px); }
+.row.demo { --accent: var(--cat-demo); }
+.row.analysis { --accent: var(--cat-analysis); }
+.row.report { --accent: var(--cat-report); }
+.row.links { --accent: var(--cat-links); }
+.row .r-tag {
+  flex: none; font-size: .68rem; font-weight: 700; color: var(--text-secondary);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 99px; padding: 2px 8px;
+}
+.row .r-title { flex: none; font-size: .9rem; font-weight: 700; }
+.row .r-desc {
+  min-width: 0; font-size: .8rem; color: var(--text-secondary);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.row .r-meta {
+  margin-left: auto; flex: none; font-size: .76rem; color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .row { flex-wrap: wrap; gap: 6px 10px; }
+  .row .r-desc { flex: 1 1 100%; white-space: normal; }
+  .row .r-meta { margin-left: 0; }
+}
+
 footer {
   text-align: center; padding: 24px; font-size: .78rem;
   color: var(--text-secondary); border-top: 1px solid var(--border);

@@ -1,18 +1,17 @@
 /* ============================================================
-   Omniplay — 共用資料載入與卡片渲染（index.html 與 games.html）
+   Omniplay — 共用資料載入與卡片渲染（index.html 與 all.html）
 
    所有內容都從 rhino-boss/Jumbo 掃出來：
      Demogame  ← Project/Slots/<代號_名稱>/index.html
      分析報告   ← Project/競品分析/遊戲數據_*.html
      其他報告／常用連結 ← catalog.js（手動）
 
-   GitHub API 用量（未登入限每小時 60 次）：
-     /contents/Project                  1 次  找 Slots 的 tree sha
-     /git/trees/<sha>?recursive=1       1 次  一次抓整棵 Slots 子樹
-     /contents/Project/競品分析          1 次  列出競品報告
-     /commits?path=<遊戲資料夾>          每款 1 次，結果快取 6 小時
+   GitHub API 用量（未登入限每小時 60 次，且依對外 IP 計算）：
+     /git/trees/main:Project/Slots?recursive=1  1 次  一次取回整棵 Slots 子樹
+     /contents/Project/競品分析                  1 次  列出競品報告
+     /commits?path=<遊戲資料夾>                  每款 1 次，結果快取 24 小時
    game_rule.md、version_manifest.js、競品分析的 README.md 都是同源的
-   Pages 靜態檔，不吃 API 額度。
+   Pages 靜態檔，不吃 API 額度。額度用完時的降級行為見 loadGames 的 catch。
    ============================================================ */
 window.Omni = (function () {
   var OWNER = "rhino-boss";
@@ -431,6 +430,29 @@ window.Omni = (function () {
     '</a>';
   }
 
+  // 常用連結那種一列一個的連結卡
+  function linkCard(l) {
+    return '<a class="link-card" href="' + esc(l.url) + '" target="_blank" rel="noopener noreferrer"' +
+           (l.desc ? ' title="' + esc(l.desc) + '"' : '') + '>' +
+      (l.game ? '<span class="lk-tag">' + esc(l.game) + '</span>' : '') +
+      '<span class="lk-name">' + esc(l.title) + '</span>' +
+      '<span class="arrow">→</span>' +
+    '</a>';
+  }
+
+  // 清單模式：一列一筆，左側色條標分類
+  function rowItem(it) {
+    var ext = isExternal(it.url);
+    var showGid = it.game && String(it.title || "").indexOf(it.game) !== 0;
+    return '<a class="row ' + esc(it.cat) + '" href="' + esc(it.url) + '"' +
+           (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
+      (showGid ? '<span class="r-tag">' + esc(it.game) + '</span>' : '') +
+      '<span class="r-title">' + esc(it.title) + '</span>' +
+      (it.desc ? '<span class="r-desc">' + esc(it.desc) + '</span>' : '') +
+      (it.date ? '<span class="r-meta">' + esc(it.date) + '</span>' : '') +
+    '</a>';
+  }
+
   // 遊戲轉成圖4 那種卡的資料形狀
   function gameAsItem(g) {
     return {
@@ -453,6 +475,8 @@ window.Omni = (function () {
     loadAnalysis: loadAnalysis,
     gameCard: gameCard,
     listCard: listCard,
+    linkCard: linkCard,
+    rowItem: rowItem,
     gameAsItem: gameAsItem,
     haystackOf: haystackOf
   };
