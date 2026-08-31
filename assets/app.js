@@ -427,6 +427,8 @@ window.Omni = (function () {
       '</div>' +
       '<h2>' + esc(it.title) + '</h2>' +
       (it.desc ? '<p>' + esc(it.desc) + '</p>' : '') +
+      // 報告類才有日期（分析報告取 README 的「報告日期」、其他報告取 catalog.js 的 date）
+      (it.date ? '<div class="card-date">更新 ' + esc(it.date) + '</div>' : '') +
     '</a>';
   }
 

@@ -295,6 +295,11 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
 .ext { margin-left: auto; font-size: .66rem; color: var(--text-secondary); opacity: .8; }
 .card h2 { font-size: .95rem; font-weight: 800; line-height: 1.4; }
 .card p { font-size: .79rem; color: var(--text-secondary); line-height: 1.5; }
+.card-date {
+  margin-top: auto; padding-top: 2px;
+  font-size: .73rem; color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
 
 /* ── 清單模式：一列一筆 ── */
 .rows { display: flex; flex-direction: column; gap: 8px; }
