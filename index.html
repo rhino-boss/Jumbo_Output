@@ -59,7 +59,8 @@
       <span class="n" id="n-demo"></span>
       <div class="sec-actions">
         <button class="sec-btn" id="demo-view" type="button" title="切換卡片／清單">☰ 清單</button>
-        <a class="sec-link" href="games.html">查看全部 →</a>
+        <button class="sec-btn" data-more="demo" type="button" hidden></button>
+        <a class="sec-link" href="games.html">完整頁 →</a>
       </div>
     </div>
     <div id="demo-body"></div>
@@ -71,6 +72,9 @@
       <span class="cdot"></span>
       <h2>分析報告</h2>
       <span class="n" id="n-analysis"></span>
+      <div class="sec-actions">
+        <button class="sec-btn" data-more="analysis" type="button" hidden></button>
+      </div>
     </div>
     <div class="grid" id="analysis-body"></div>
   </div>
@@ -81,6 +85,9 @@
       <span class="cdot"></span>
       <h2>其他報告</h2>
       <span class="n" id="n-report"></span>
+      <div class="sec-actions">
+        <button class="sec-btn" data-more="report" type="button" hidden></button>
+      </div>
     </div>
     <div class="grid" id="report-body"></div>
   </div>
@@ -91,6 +98,9 @@
       <span class="cdot"></span>
       <h2>常用連結</h2>
       <span class="n" id="n-links"></span>
+      <div class="sec-actions">
+        <button class="sec-btn" data-more="links" type="button" hidden></button>
+      </div>
     </div>
     <div class="link-grid" id="links-body"></div>
   </div>
@@ -103,6 +113,8 @@
 <script>
 (function () {
   var VIEW_KEY = "omniplay-demo-view";    // "rail" | "list"
+  var LIMIT = 3;                          // 每區預設只顯示 3 筆
+  var expanded = { demo: false, analysis: false, report: false, links: false };
 
   var qEl = document.getElementById("q");
   var viewBtn = document.getElementById("demo-view");
@@ -162,6 +174,28 @@
     document.getElementById("n-" + id).textContent = n === null ? "" : n;
   }
 
+  /* 每區只顯示前 LIMIT 筆，「全部顯示」就地展開。
+     搜尋時不套上限 —— 使用者已經自己縮小範圍了，再砍成 3 筆只會擋路。 */
+  function limit(list, key, q) {
+    if (q || expanded[key]) return list;
+    return list.slice(0, LIMIT);
+  }
+  function setMoreBtn(key, total, q) {
+    var btn = document.querySelector('[data-more="' + key + '"]');
+    if (!btn) return;
+    if (q || total <= LIMIT) { btn.hidden = true; return; }
+    btn.hidden = false;
+    btn.textContent = expanded[key] ? "收起" : "全部顯示（" + total + "）";
+  }
+
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-more]");
+    if (!btn) return;
+    var key = btn.dataset.more;
+    expanded[key] = !expanded[key];
+    renderAll();
+  });
+
   /* ---------- Demogame ---------- */
   function renderDemo(q) {
     var body = document.getElementById("demo-body");
@@ -171,19 +205,22 @@
     viewBtn.textContent = demoView === "list" ? "▦ 卡片" : "☰ 清單";
     viewBtn.title = demoView === "list" ? "點一下切換成卡片" : "點一下切換成清單";
 
+    setMoreBtn("demo", list.length, q);
+
     if (loading.demo && !games.length) { body.className = ""; body.innerHTML = emptyBox("正在載入 Demogame…"); return; }
     if (!list.length) { body.className = ""; body.innerHTML = emptyBox(q ? "沒有符合的遊戲。" : "掃不到任何遊戲。"); return; }
 
-    // NEW 緞帶：更新時間最新的前 3 款
+    // NEW 緞帶：更新時間最新的前 3 款（不受顯示上限影響）
     var newest = {};
     list.slice(0, 3).forEach(function (g) { if (g.updated) newest[g.folder] = true; });
 
+    var shown = limit(list, "demo", q);
     if (demoView === "list") {
       body.className = "grid";
-      body.innerHTML = list.map(function (g) { return Omni.listCard(Omni.gameAsItem(g)); }).join("");
+      body.innerHTML = shown.map(function (g) { return Omni.listCard(Omni.gameAsItem(g)); }).join("");
     } else {
       body.className = "rail";
-      body.innerHTML = list.map(function (g) { return Omni.gameCard(g, !!newest[g.folder]); }).join("");
+      body.innerHTML = shown.map(function (g) { return Omni.gameCard(g, !!newest[g.folder]); }).join("");
     }
   }
 
@@ -199,9 +236,10 @@
     var list = items.filter(function (i) { return matches(i, q); });
     var busy = loading[id] && !items.length;
     setCount(id, busy ? null : list.length + " " + unit);
+    setMoreBtn(id, list.length, q);
     if (busy) { body.innerHTML = emptyBox("正在載入…"); return; }
     if (!list.length) { body.innerHTML = emptyBox(q ? "沒有符合的項目。" : emptyMsg); return; }
-    body.innerHTML = list.map(Omni.listCard).join("");
+    body.innerHTML = limit(list, id, q).map(Omni.listCard).join("");
   }
 
   /* ---------- 常用連結（Cworld 爬山頁的連結列樣式） ---------- */
@@ -209,12 +247,13 @@
     var body = document.getElementById("links-body");
     var list = manualOf("links").filter(function (i) { return matches(i, q); });
     setCount("links", list.length + " 個");
+    setMoreBtn("links", list.length, q);
     if (!list.length) {
       body.innerHTML = emptyBox(q ? "沒有符合的連結。"
         : "常用連結待補 — 在 catalog.js 加入 cat: \"links\" 的項目。");
       return;
     }
-    body.innerHTML = list.map(function (l) {
+    body.innerHTML = limit(list, "links", q).map(function (l) {
       return '<a class="link-card" href="' + Omni.esc(l.url) + '" target="_blank" rel="noopener noreferrer"' +
              (l.desc ? ' title="' + Omni.esc(l.desc) + '"' : '') + '>' +
         (l.game ? '<span class="lk-tag">' + Omni.esc(l.game) + '</span>' : '') +
