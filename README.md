@@ -36,14 +36,14 @@ assets/favicon.*   深藍底白 J
   （目前 H027、H028 沒有封面圖）
 - **版本號** ← `Versions/version_manifest.js` 的 `current`；沒這個檔就留空
   （目前只有 H016、H027、H028 有）
-
-封面圖與版本檔**在不在都直接從 Slots 子樹判斷**（那棵樹本來就抓了），
-不會先打再看 404 — 所以 console 乾淨，也不浪費請求。
 - **遊戲類型** ← `game_rule.md`，正規化成
   `Cluster Pay / Pay Anywhere / N Ways / N Lines`（＋Cascade 等），
   邏輯與 Cworld 的 `normalizePlay` 相同
 - **遊戲資訊** → GitHub 上的 `game_rule.md`（會渲染 markdown）；沒有規則書就停用
 - **開始遊玩** → demo 頁，開新視窗；沒有 `index.html` 的遊戲顯示「製作中」
+
+封面圖與版本檔**在不在都直接從 Slots 子樹判斷**（那棵樹本來就抓了），
+不會先打再看 404 — 所以 console 乾淨，也不浪費請求。
 
 ### 排序與 NEW
 
@@ -87,8 +87,7 @@ commit 時間快取在 `localStorage` 6 小時（key `omniplay-game-dates`），
 所以重新整理或跳到 `games.html` 通常只花 2–3 次。
 另有 11 次同源 Pages 靜態檔請求（7 份 `game_rule.md`、3 份 `version_manifest.js`、
 1 份競品分析 `README.md`），不吃額度，且全部都會成功。
-`game_rule.md`、`version_manifest.js`、競品分析的 `README.md` 都是同源的
-Pages 靜態檔，不吃額度。任一邊掃描失敗時其他區照常顯示。
+任一邊掃描失敗時其他區照常顯示，並在該區標示失敗原因。
 
 ## 新增內容
 
