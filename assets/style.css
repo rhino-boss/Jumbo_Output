@@ -24,7 +24,7 @@
   --accent-mid: #3e6394;
   --focus: #3e6394;
 
-  --radius: 16px;
+  --radius: 14px;
   --shadow: 0 2px 12px rgba(0,0,0,0.07);
   --shadow-hover: 0 8px 32px rgba(0,0,0,0.13);
 }
@@ -81,21 +81,69 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
   font-size: .82rem; color: #7a5a14; line-height: 1.6;
 }
 
-/* ── 區塊 ── */
-.section { margin-top: 30px; }
-.section:first-of-type { margin-top: 22px; }
-.sec-head {
+/* ── 狀態列與數據總覽（與 Cworld 爬山頁相同） ── */
+.status-bar {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  padding: 8px 14px; margin-bottom: 14px; border-radius: 8px;
-  background: var(--sec-tint); border-left: 4px solid var(--sec-color);
+  margin: 18px 0 22px; font-size: .82rem; color: var(--text-secondary);
 }
-.sec-head h2 { font-size: 1.06rem; font-weight: 800; letter-spacing: .3px; }
+.status-bar .dot { width: 8px; height: 8px; border-radius: 50%; background: #3a8a50; flex-shrink: 0; }
+.status-bar.warn .dot { background: var(--cat-report); }
+
+.stats {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 18px; margin-bottom: 36px;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px 20px; box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  border-top: 3px solid var(--sec-color, var(--border));
+}
+.stat-num {
+  font-size: 1.8rem; font-weight: 800; color: var(--accent-mid);
+  font-variant-numeric: tabular-nums; line-height: 1.15;
+}
+.stat-num .unit { font-size: .82rem; font-weight: 700; color: var(--text-secondary); margin-left: 4px; }
+.stat-label { margin-top: 4px; font-size: .82rem; color: var(--text-secondary); }
+
+/* ── 區塊 ── */
+.section { margin-top: 40px; }
+.section:first-of-type { margin-top: 0; }
+.sec-head {
+  display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin: 0 0 16px;
+}
+.sec-head .cdot { width: 9px; height: 9px; border-radius: 50%; background: var(--sec-color); flex: none; }
+.sec-head h2 { font-size: 1.05rem; font-weight: 700; }
 .sec-head .n {
   font-size: .76rem; font-weight: 700; color: var(--text-secondary);
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 99px; padding: 1px 9px; font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums;
 }
-.sec-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.sec-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.sec-link {
+  font-size: .82rem; font-weight: 600; color: var(--accent-mid); text-decoration: none;
+}
+.sec-link:hover { text-decoration: underline; }
+
+/* ── 連結列（Cworld 爬山頁的「其他頁面」） ── */
+/* 注意：class 名別用 .links — 區塊本身是 class="section links"，會一起吃到 display:grid */
+.link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.link-card {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; text-decoration: none; color: var(--text-primary);
+  font-size: .9rem; font-weight: 600;
+  transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+.link-card:hover {
+  border-color: var(--accent-mid); box-shadow: 0 6px 18px rgba(0,0,0,.10);
+  transform: translateY(-2px);
+}
+.link-card .lk-tag {
+  font-size: .68rem; font-weight: 700; color: var(--text-secondary);
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 99px; padding: 2px 8px; flex: none;
+}
+.link-card .lk-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.link-card .arrow { margin-left: auto; color: var(--text-secondary); flex: none; }
 .sec-btn {
   font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer;
   padding: 6px 12px; border-radius: 8px; text-decoration: none;
@@ -105,10 +153,10 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
 .sec-btn:hover { border-color: var(--sec-color); color: var(--text-primary); }
 .sec-btn.disabled { opacity: .5; cursor: not-allowed; }
 
-.section.demo     { --sec-color: var(--cat-demo);     --sec-tint: #e6eefb; }
-.section.analysis { --sec-color: var(--cat-analysis); --sec-tint: #fbeaea; }
-.section.report   { --sec-color: var(--cat-report);   --sec-tint: #fbf3e4; }
-.section.links    { --sec-color: var(--cat-links);   --sec-tint: #e9f1ea; }
+.section.demo,     .stat-card.demo     { --sec-color: var(--cat-demo); }
+.section.analysis, .stat-card.analysis { --sec-color: var(--cat-analysis); }
+.section.report,   .stat-card.report   { --sec-color: var(--cat-report); }
+.section.links,    .stat-card.links    { --sec-color: var(--cat-links); }
 
 .sec-empty {
   padding: 26px 18px; text-align: center; font-size: .85rem;
@@ -254,6 +302,7 @@ footer {
 
 @media (max-width: 900px) {
   .rail > * { flex: 0 0 calc((100% - 14px) / 2); }
+  .stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }
 @media (max-width: 640px) {
   nav { padding: 0 24px; }
