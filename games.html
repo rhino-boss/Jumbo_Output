@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#2a3d5c">
+<link rel="stylesheet" href="assets/style.css">
+<title>Demogame — Omniplay</title>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-in">
+    <img class="logo" src="assets/favicon.svg" alt="" width="44" height="44">
+    <div>
+      <h1>Demogame</h1>
+      <div class="crumb"><a href="index.html">← 回 Omniplay</a></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <input id="q" type="search" placeholder="搜尋遊戲名稱、代號、玩法、版本…" autocomplete="off">
+
+  <div class="toolbar">
+    <span id="count">…</span>
+    <div class="spacer"></div>
+    <span>排序</span>
+    <button class="sec-btn" type="button" data-sort="date">更新時間</button>
+    <button class="sec-btn" type="button" data-sort="id">代號</button>
+    <button class="sec-btn" type="button" id="sort-dir" title="切換升冪／降冪">↓</button>
+    <button class="sec-btn" type="button" id="view-toggle">☰ 清單</button>
+  </div>
+
+  <div id="body" class="grid"></div>
+</div>
+
+<footer>made with ☕ by c</footer>
+
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  var SORT_KEY = "omniplay-games-sort";
+  var VIEW_KEY = "omniplay-games-view";
+
+  var qEl = document.getElementById("q");
+  var body = document.getElementById("body");
+  var countEl = document.getElementById("count");
+  var dirBtn = document.getElementById("sort-dir");
+  var viewBtn = document.getElementById("view-toggle");
+
+  var games = [];
+  var loading = true;
+
+  var saved = (function () {
+    try { return JSON.parse(localStorage.getItem(SORT_KEY) || "{}"); } catch (e) { return {}; }
+  })();
+  var sortKey = saved.key === "id" ? "id" : "date";
+  var sortDesc = saved.desc !== false;
+  var view = (function () {
+    try { return localStorage.getItem(VIEW_KEY) === "list" ? "list" : "card"; }
+    catch (e) { return "card"; }
+  })();
+
+  function persist() {
+    try {
+      localStorage.setItem(SORT_KEY, JSON.stringify({ key: sortKey, desc: sortDesc }));
+      localStorage.setItem(VIEW_KEY, view);
+    } catch (e) {}
+  }
+
+  function sorted(list) {
+    var out = list.slice();
+    out.sort(function (a, b) {
+      var d = sortKey === "id"
+        ? String(a.id).localeCompare(String(b.id))
+        : (a.updated || 0) - (b.updated || 0);
+      d = sortDesc ? -d : d;
+      // 同分時固定用代號遞增，避免切換方向後同日的遊戲順序也跟著顛倒
+      return d || String(a.id).localeCompare(String(b.id));
+    });
+    return out;
+  }
+
+  function render() {
+    var q = qEl.value.trim().toLowerCase();
+    var list = sorted(games.filter(function (g) {
+      return !q || Omni.haystackOf(g).indexOf(q) !== -1;
+    }));
+
+    var parts = [];
+    if (!loading) parts.push(list.length + " 款" + (games.length !== list.length ? "（共 " + games.length + " 款）" : ""));
+    Omni.notes.forEach(function (n) { parts.push(n); });
+    countEl.textContent = loading ? "正在載入…" : parts.join(" · ");
+
+    document.querySelectorAll("[data-sort]").forEach(function (b) {
+      b.classList.toggle("active", b.dataset.sort === sortKey);
+    });
+    dirBtn.textContent = sortDesc ? "↓" : "↑";
+    dirBtn.title = sortDesc
+      ? (sortKey === "date" ? "新 → 舊" : "大 → 小")
+      : (sortKey === "date" ? "舊 → 新" : "小 → 大");
+    viewBtn.textContent = view === "list" ? "▦ 卡片" : "☰ 清單";
+
+    if (loading && !games.length) {
+      body.className = "grid";
+      body.innerHTML = '<div class="sec-empty">正在載入 Demogame…</div>';
+      return;
+    }
+    if (!list.length) {
+      body.className = "grid";
+      body.innerHTML = '<div class="sec-empty">' + (q ? "沒有符合的遊戲。" : "掃不到任何遊戲。") + '</div>';
+      return;
+    }
+
+    // NEW 緞帶固定看「更新時間最新的 3 款」，不隨當前排序改變
+    var newest = {};
+    games.slice().sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); })
+      .slice(0, 3).forEach(function (g) { if (g.updated) newest[g.folder] = true; });
+
+    if (view === "list") {
+      body.className = "grid";
+      body.innerHTML = list.map(function (g) { return Omni.listCard(Omni.gameAsItem(g)); }).join("");
+    } else {
+      body.className = "grid";
+      body.innerHTML = list.map(function (g) { return Omni.gameCard(g, !!newest[g.folder]); }).join("");
+    }
+  }
+
+  document.querySelectorAll("[data-sort]").forEach(function (b) {
+    b.addEventListener("click", function () { sortKey = b.dataset.sort; persist(); render(); });
+  });
+  dirBtn.addEventListener("click", function () { sortDesc = !sortDesc; persist(); render(); });
+  viewBtn.addEventListener("click", function () {
+    view = view === "list" ? "card" : "list";
+    persist(); render();
+  });
+  qEl.addEventListener("input", render);
+
+  render();
+  Omni.loadGames().then(function (g) { games = g; loading = false; render(); });
+})();
+</script>
+</body>
+</html>

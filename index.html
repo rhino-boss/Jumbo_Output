@@ -8,173 +8,8 @@
 <link rel="alternate icon" href="assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <meta name="theme-color" content="#2a3d5c">
+<link rel="stylesheet" href="assets/style.css">
 <title>Omniplay</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  /* Cworld 的配色 */
-  :root {
-    --bg: #eef2f9;             /* 頁面底色：淺藍 */
-    --surface: #ffffff;
-    --surface-2: #e3eaf5;      /* hover 用的次層，比底色再深一階 */
-    --border: #dbe2ee;
-    --text-primary: #1a1a1a;
-    --text-secondary: #6b6b6b;
-    --text-tag: #4a4a4a;
-
-    /* 分類色：色點、卡片頂端色條、badge 三處共用同一組 */
-    --cat-all: #9ba3af;        /* 灰 — 全部分類 */
-    --cat-demo: #4a7fd0;       /* 藍 — Demogame */
-    --cat-analysis: #d9534f;   /* 紅 — 競品分析 */
-    --cat-report: #3f9d6b;     /* 綠 — 其他報告 */
-
-    --accent-dark: #2a3d5c;    /* hero 起 */
-    --accent-mid: #3e6394;     /* hero 迄 */
-    --focus: #3e6394;          /* 互動高亮 */
-
-    --radius: 16px;
-    --shadow: 0 2px 12px rgba(0,0,0,0.07);
-    --shadow-hover: 0 8px 32px rgba(0,0,0,0.13);
-  }
-
-  body {
-    background: var(--bg);
-    font-family: 'Helvetica Neue', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-    color: var(--text-primary);
-    min-height: 100vh;
-    display: flex; flex-direction: column;
-  }
-
-  /* ── Hero ── */
-  .hero {
-    background: linear-gradient(135deg, var(--accent-dark), var(--accent-mid));
-    padding: 34px 48px 30px; color: #fff;
-  }
-  .hero-in { max-width: 1360px; margin: 0 auto; display: flex; gap: 16px; align-items: center; }
-  /* icon 是深藍，疊在海軍藍 hero 上對比不足，加一圈淡白描邊維持可見度 */
-  .hero .logo {
-    width: 44px; height: 44px; flex: none; border-radius: 10px;
-    box-shadow: 0 0 0 2px rgba(255,255,255,.32);
-  }
-  .hero h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; }
-  .hero p { margin-top: 6px; font-size: 0.9rem; opacity: .7; }
-
-  /* ── 主體 ── */
-  .container { flex: 1; max-width: 1360px; width: 100%; margin: 0 auto; padding: 36px 48px 80px; }
-
-  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-  #q {
-    flex: 1 1 260px; min-width: 0;
-    padding: 11px 15px; font-size: 0.9rem; font-family: inherit;
-    color: var(--text-primary); background: var(--surface);
-    border: 1px solid var(--border); border-radius: 10px; outline: none;
-    transition: border-color .18s, box-shadow .18s;
-  }
-  #q:focus { border-color: var(--focus); box-shadow: 0 0 0 3px rgba(62,99,148,.13); }
-  #q::placeholder { color: var(--text-secondary); opacity: .75; }
-
-  /* 分類：單一按鈕 + 下拉 */
-  .filter { position: relative; flex: none; }
-  .filter-btn {
-    display: flex; align-items: center; gap: 9px;
-    padding: 11px 15px; font-size: 0.85rem; font-weight: 600; font-family: inherit;
-    cursor: pointer; color: var(--text-tag); background: var(--surface);
-    border: 1px solid var(--border); border-radius: 10px;
-    transition: border-color .18s, color .18s;
-  }
-  .filter-btn:hover { border-color: var(--focus); color: var(--text-primary); }
-  .filter-btn[aria-expanded="true"] {
-    border-color: var(--focus); color: var(--text-primary);
-    box-shadow: 0 0 0 3px rgba(62,99,148,.13);
-  }
-  .filter-btn .dot, .filter-menu .dot {
-    width: 9px; height: 9px; border-radius: 50%; flex: none;
-    background: var(--cat-all);
-  }
-  .dot.demo { background: var(--cat-demo); }
-  .dot.analysis { background: var(--cat-analysis); }
-  .dot.report { background: var(--cat-report); }
-  .filter-btn .caret { color: var(--text-secondary); font-size: .62rem; transition: transform .18s; }
-  .filter-btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
-
-  .filter-menu {
-    position: absolute; top: calc(100% + 8px); left: 0; z-index: 20; min-width: 244px;
-    list-style: none; padding: 6px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; box-shadow: var(--shadow-hover);
-  }
-  .filter-menu[hidden] { display: none; }
-  .filter-menu li {
-    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
-    font-size: 0.88rem; cursor: pointer; border-radius: 10px; color: var(--text-tag);
-    transition: background .18s;
-  }
-  .filter-menu li:hover { background: var(--surface-2); }
-  .filter-menu li[aria-selected="true"] {
-    background: var(--accent-dark); color: #fff; font-weight: 600;
-  }
-  .filter-menu li[aria-selected="true"] .n { color: rgba(255,255,255,.65); }
-  .filter-menu .n { margin-left: auto; font-size: .78rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-
-  .status-bar {
-    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    margin: 22px 0 20px; font-size: .82rem; color: var(--text-secondary); min-height: 1.4em;
-  }
-  .status-bar .warn { color: #a8632a; }
-
-  /* ── 卡片 ── */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 13px; }
-  .card {
-    position: relative; overflow: hidden;
-    display: flex; flex-direction: column; gap: 7px;
-    padding: 16px 16px 15px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; box-shadow: var(--shadow);
-    text-decoration: none; color: inherit;
-    transition: box-shadow .25s ease, transform .25s ease;
-  }
-  .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); }
-  .card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: var(--accent); border-radius: 12px 12px 0 0;
-  }
-  .card.demo { --accent: var(--cat-demo); }
-  .card.analysis { --accent: var(--cat-analysis); }
-  .card.report { --accent: var(--cat-report); }
-
-  .card-top { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
-  .badge {
-    padding: 2px 8px; font-size: .66rem; font-weight: 800;
-    letter-spacing: .3px; border-radius: 99px;
-  }
-  .badge.demo { color: #2f5f9e; background: #e8f0fb; }
-  .badge.analysis { color: #b03a36; background: #fbeceb; }
-  .badge.report { color: #2e7d54; background: #e6f2ea; }
-  .gid { font-size: .72rem; font-weight: 700; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-  .ext { margin-left: auto; font-size: .66rem; color: var(--text-secondary); opacity: .8; }
-  .card h2 { font-size: .95rem; font-weight: 800; line-height: 1.4; }
-  .card p { font-size: .79rem; color: var(--text-secondary); line-height: 1.5; }
-
-  .empty {
-    padding: 60px 20px; text-align: center; font-size: .88rem;
-    color: var(--text-secondary); background: var(--surface);
-    border: 1px dashed var(--border); border-radius: var(--radius);
-  }
-
-  footer {
-    text-align: center; padding: 24px; font-size: .78rem;
-    color: var(--text-secondary); border-top: 1px solid var(--border);
-  }
-
-  @media (max-width: 640px) {
-    .hero { padding: 28px 24px 24px; }
-    .hero h1 { font-size: 1.45rem; }
-    .container { padding: 24px 24px 60px; }
-    .grid { grid-template-columns: 1fr; }
-    .filter, .filter-btn { width: 100%; }
-    .filter-menu { right: 0; }
-  }
-</style>
 </head>
 <body>
 
@@ -189,404 +24,137 @@
 </div>
 
 <div class="container">
-  <div class="controls">
-    <input id="q" type="search" placeholder="搜尋標題、遊戲代號、說明、標籤…" autocomplete="off">
-    <div class="filter">
-      <button class="filter-btn" id="filter-btn" aria-haspopup="listbox" aria-expanded="false">
-        <span class="dot" id="filter-dot"></span>
-        <span id="filter-label">全部分類</span>
-        <span class="caret">▼</span>
-      </button>
-      <ul class="filter-menu" id="filter-menu" role="listbox" hidden></ul>
+  <input id="q" type="search" placeholder="搜尋遊戲名稱、代號、玩法、廠商、報告…" autocomplete="off">
+
+  <!-- ── Demogame ── -->
+  <div class="section demo" id="sec-demo">
+    <div class="sec-head">
+      <h2>Demogame</h2>
+      <span class="n" id="n-demo">–</span>
+      <div class="sec-actions">
+        <button class="sec-btn" id="demo-view" type="button" title="切換卡片／清單">☰ 清單</button>
+        <a class="sec-btn" href="games.html">全部顯示 →</a>
+      </div>
     </div>
+    <div id="demo-body"></div>
   </div>
 
-  <div class="status-bar" id="count"></div>
-  <div class="grid" id="grid"></div>
+  <!-- ── 分析報告 ── -->
+  <div class="section analysis" id="sec-analysis">
+    <div class="sec-head">
+      <h2>分析報告</h2>
+      <span class="n" id="n-analysis">–</span>
+    </div>
+    <div class="grid" id="analysis-body"></div>
+  </div>
+
+  <!-- ── 其他報告 ── -->
+  <div class="section report" id="sec-report">
+    <div class="sec-head">
+      <h2>其他報告</h2>
+      <span class="n" id="n-report">–</span>
+    </div>
+    <div class="grid" id="report-body"></div>
+  </div>
+
+  <!-- ── 常用連結 ── -->
+  <div class="section links" id="sec-links">
+    <div class="sec-head">
+      <h2>常用連結</h2>
+      <span class="n" id="n-links">–</span>
+    </div>
+    <div class="grid" id="links-body"></div>
+  </div>
 </div>
 
 <footer>made with ☕ by c</footer>
 
 <script src="catalog.js"></script>
+<script src="assets/app.js"></script>
 <script>
-(function(){
-  /* ---------- 自動掃描設定（沿用 Cworld/studio/demogame 的做法） ----------
-     兩個分類都從 rhino-boss/Jumbo 掃出來，所以新增內容不需要動這個倉庫：
-       Demogame  ← Project/Slots/<代號_名稱>/index.html
-       競品分析   ← Project/競品分析/遊戲數據_*.html                        */
-  var REPO_OWNER = "rhino-boss";
-  var REPO_NAME  = "Jumbo";
-  var SLOTS_PATH = "Project/Slots";
-  var ANALYSIS_DIR = "競品分析";
-  var PAGES_BASE = "https://" + REPO_OWNER + ".github.io/" + REPO_NAME;
-  var API_BASE   = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME;
-  var ANALYSIS_API  = API_BASE + "/contents/Project/" + encodeURIComponent(ANALYSIS_DIR);
-  var ANALYSIS_BASE = PAGES_BASE + "/Project/" + encodeURIComponent(ANALYSIS_DIR);
+(function () {
+  var RAIL_MAX = 3;                       // 橫排一次看幾張，其餘左右滑動
+  var VIEW_KEY = "omniplay-demo-view";    // "rail" | "list"
 
-  var CATS = [
-    { key:"all",      label:"全部分類" },
-    { key:"demo",     label:"Demogame" },
-    { key:"analysis", label:"競品分析" },
-    { key:"report",   label:"其他報告" }
-  ];
-  var CAT_LABEL = { demo:"Demogame", analysis:"競品分析", report:"其他報告" };
+  var qEl = document.getElementById("q");
+  var viewBtn = document.getElementById("demo-view");
+  var manual = (window.CATALOG || []).slice();
 
-  var DEFAULT_CAT = "demo";   // 進站預設顯示 Demogame
+  var games = [];
+  var analysis = [];
+  var loading = { demo: true, analysis: true };
+  var demoView = (function () {
+    try { return localStorage.getItem(VIEW_KEY) === "list" ? "list" : "rail"; }
+    catch (e) { return "rail"; }
+  })();
 
-  var grid    = document.getElementById("grid");
-  var countEl = document.getElementById("count");
-  var qEl     = document.getElementById("q");
-  var btn     = document.getElementById("filter-btn");
-  var menu    = document.getElementById("filter-menu");
-  var labelEl = document.getElementById("filter-label");
-  var dotEl   = document.getElementById("filter-dot");
-
-  var cat = DEFAULT_CAT;
-  var items = (window.CATALOG || []).slice();
-  var notes = [];             // 掃描失敗／不完整的提示
-  var loading = 2;            // 兩個分類各一，都回來前不要顯示「沒有符合條件」
-
-  function esc(s){
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
-      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
-    });
+  function byDateDesc(a, b) {
+    return String(b.date || "").localeCompare(String(a.date || "")) ||
+           String(a.title || "").localeCompare(String(b.title || ""));
   }
-  function isExternal(u){ return /^https?:\/\//i.test(u || ""); }
-
-  function sortItems(){
-    items.sort(function(a,b){
-      return String(b.date||"").localeCompare(String(a.date||"")) ||
-             String(a.title||"").localeCompare(String(b.title||""));
-    });
+  function manualOf(cat) {
+    return manual.filter(function (i) { return i.cat === cat; }).sort(byDateDesc);
   }
-  // date 與 tags 已不顯示在卡片上，但仍納入搜尋
-  function haystack(it){
-    return [it.title, it.game, it.desc, it.date, CAT_LABEL[it.cat], (it.tags||[]).join(" ")]
-      .join(" ").toLowerCase();
-  }
-  function countOf(key){
-    return key === "all" ? items.length : items.filter(function(i){ return i.cat === key; }).length;
-  }
+  function matches(o, q) { return !q || Omni.haystackOf(o).indexOf(q) !== -1; }
 
-  /* ---------- 分類下拉 ---------- */
-  function buildMenu(){
-    menu.innerHTML = CATS.map(function(c){
-      return '<li role="option" data-cat="' + c.key + '"' +
-             ' aria-selected="' + (c.key === cat) + '">' +
-             '<span class="dot ' + (c.key === "all" ? "" : c.key) + '"></span>' +
-             '<span>' + esc(c.label) + '</span>' +
-             '<span class="n">' + countOf(c.key) + '</span>' +
-             '</li>';
-    }).join("");
-  }
-  function setOpen(open){
-    menu.hidden = !open;
-    btn.setAttribute("aria-expanded", String(open));
-    if (open) buildMenu();
-  }
-  function selectCat(key){
-    cat = key;
-    var c = CATS.filter(function(x){ return x.key === key; })[0] || CATS[0];
-    labelEl.textContent = c.label;
-    dotEl.className = "dot " + (key === "all" ? "" : key);
-    setOpen(false);
-    render();
-  }
+  function setCount(id, n) { document.getElementById("n-" + id).textContent = n; }
 
-  btn.addEventListener("click", function(e){ e.stopPropagation(); setOpen(menu.hidden); });
-  menu.addEventListener("click", function(e){
-    var li = e.target.closest("li[data-cat]");
-    if (li) selectCat(li.dataset.cat);
-  });
-  document.addEventListener("click", function(){ if (!menu.hidden) setOpen(false); });
-  document.addEventListener("keydown", function(e){
-    if (e.key === "Escape" && !menu.hidden){ setOpen(false); btn.focus(); }
-  });
+  function emptyBox(msg) { return '<div class="sec-empty">' + Omni.esc(msg) + '</div>'; }
 
-  /* ---------- 渲染 ---------- */
-  function render(){
-    var q = qEl.value.trim().toLowerCase();
-    var list = items.filter(function(it){
-      if (cat !== "all" && it.cat !== cat) return false;
-      return !q || haystack(it).indexOf(q) !== -1;
-    });
+  /* ---------- Demogame 區 ---------- */
+  function renderDemo(q) {
+    var body = document.getElementById("demo-body");
+    var list = games.filter(function (g) { return matches(g, q); });
+    setCount("demo", loading.demo ? "…" : list.length);
 
-    var parts = [];
-    if (list.length) parts.push(list.length + " 筆" + (items.length !== list.length ? "（共 " + items.length + " 筆）" : ""));
-    notes.forEach(function(n){ parts.push('<span class="warn">' + esc(n) + '</span>'); });
-    countEl.innerHTML = parts.join(" · ");
+    viewBtn.textContent = demoView === "list" ? "▦ 卡片" : "☰ 清單";
+    viewBtn.title = demoView === "list" ? "點一下切換成卡片" : "點一下切換成清單";
 
-    if (!list.length){
-      var msg;
-      if (loading > 0 && !q) msg = "正在載入清單…";
-      else if (items.length) msg = "沒有符合條件的項目。";
-      else msg = "掃不到任何內容 — 檢查 rhino-boss/Jumbo 的 Pages 是否正常。";
-      grid.innerHTML = '<div class="empty">' + msg + '</div>';
-      if (!menu.hidden) buildMenu();
-      return;
-    }
+    if (loading.demo && !games.length) { body.innerHTML = emptyBox("正在載入 Demogame…"); return; }
+    if (!list.length) { body.innerHTML = emptyBox(q ? "沒有符合的遊戲。" : "掃不到任何遊戲。"); return; }
 
-    grid.innerHTML = list.map(function(it){
-      var ext = isExternal(it.url);
-      // 標題開頭已經是那個代號時就不重複顯示（Demogame 的標題本來就是「H016 幸運王牌」）；
-      // 競品分析的標題是「Super Ace 遊戲數據」，廠商不在標題裡，所以照樣顯示
-      var showGid = it.game && String(it.title || "").indexOf(it.game) !== 0;
-      return '<a class="card ' + esc(it.cat) + '" href="' + esc(it.url) + '"' +
-             (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
-        '<div class="card-top">' +
-          '<span class="badge ' + esc(it.cat) + '">' + esc(CAT_LABEL[it.cat] || it.cat) + '</span>' +
-          (showGid ? '<span class="gid">' + esc(it.game) + '</span>' : '') +
-          (ext ? '<span class="ext">外部連結 ↗</span>' : '') +
-        '</div>' +
-        '<h2>' + esc(it.title) + '</h2>' +
-        (it.desc ? '<p>' + esc(it.desc) + '</p>' : '') +
-      '</a>';
-    }).join('');
+    // NEW 緞帶：更新時間最新的前 3 款
+    var newest = {};
+    list.slice(0, 3).forEach(function (g) { if (g.updated) newest[g.folder] = true; });
 
-    if (!menu.hidden) buildMenu();
-  }
-
-  /* ---------- 遊戲類型：統一成 Cluster Pay / Pay Anywhere / N Ways / N Lines ----------
-     判定依序看 game_rule.md 的「遊戲類型」「中獎方式」，Ways / Lines 的數字取自
-     「最小 / 最大 Ways」或中獎方式裡的線數；額外特色（Cascade 等）接在後面。
-     邏輯與 Cworld/studio/demogame/index.html 的 normalizePlay 相同。            */
-  function normalizePlay(type, winWay, waysCell){
-    var all = type + " " + winWay + " " + waysCell;
-    var fmt = function(n){ return Number(n).toLocaleString("en-US"); };
-
-    var mech = "";
-    if (/cluster/i.test(all)) {
-      mech = "Cluster Pay";
-    } else if (/count\s*anywhere|pay\s*anywhere|全盤面|整個盤面/i.test(all)) {
-      mech = "Pay Anywhere";
-    } else if (/megaways|ways|way\s*game/i.test(all)) {
-      var nums = (waysCell.match(/[\d,]{3,}/g) || [])
-        .map(function(s){ return Number(s.replace(/,/g, "")); })
-        .filter(Boolean);
-      if (nums.length >= 2) mech = fmt(Math.min.apply(null, nums)) + "–" + fmt(Math.max.apply(null, nums)) + " Ways";
-      else if (nums.length === 1) mech = fmt(nums[0]) + " Ways";
-      else mech = "Ways";
+    if (demoView === "list") {
+      body.className = "grid";
+      body.innerHTML = list.map(function (g) { return Omni.listCard(Omni.gameAsItem(g)); }).join("");
     } else {
-      var ln = all.match(/(\d+)\s*(?:line|lines|線|條線)/i);
-      if (ln) mech = ln[1] + " Lines";
+      body.className = "rail";
+      body.innerHTML = list.map(function (g) { return Omni.gameCard(g, !!newest[g.folder]); }).join("");
     }
-    if (!mech) return type;   // 認不出來就照原文顯示
-
-    // 附加特色：拆「遊戲類型」，去掉 Video Slot 與已被 mech 表達的字眼。
-    // 只在「/」與「前後有空白的破折號」處切開，才不會把 2,025–32,400 這種區間切斷
-    var extras = type.split(/\s*\/\s*|\s+[-–—]\s+/).map(function(s){ return s.trim(); })
-      .filter(function(s){
-        return s && !/^video\s*slot$/i.test(s)
-          && !/^cluster\s*pays?$/i.test(s)
-          && !/^count\s*anywhere$/i.test(s)
-          && !/^pay\s*anywhere$/i.test(s)
-          && !/^[\d,\s–—-]*ways?$/i.test(s)
-          && !/^[\d,\s–—-]*lines?$/i.test(s)
-          && !/^[\d,–—-]+$/.test(s);
-      });
-
-    var seen = {};
-    return [mech].concat(extras).filter(function(s){
-      var k = s.toLowerCase().replace(/[\s,]/g, "");
-      if (seen[k]) return false;
-      seen[k] = true;
-      return true;
-    }).join(" / ");
   }
 
-  // 從遊戲資料夾的 game_rule.md 讀「遊戲類型」「中獎方式」「最小 / 最大 Ways」
-  // 表格列長相：| 遊戲類型 | Video Slot - 1,024 Ways / Cascade |
-  function fetchPlay(gameBase){
-    return fetch(gameBase + "/game_rule.md")
-      .then(function(res){
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return res.text();
-      })
-      .then(function(text){
-        var cell = function(label){
-          var m = text.match(new RegExp("\\|\\s*" + label + "\\s*\\|([^|\\n]*)\\|"));
-          var v = m ? m[1].trim().replace(/^`|`$/g, "") : "";
-          return (!v || v === "-") ? "" : v;
-        };
-        return normalizePlay(cell("遊戲類型"), cell("中獎方式"), cell("最小 / 最大 Ways"));
-      })
-      .catch(function(){ return ""; });
+  viewBtn.addEventListener("click", function () {
+    demoView = demoView === "list" ? "rail" : "list";
+    try { localStorage.setItem(VIEW_KEY, demoView); } catch (e) {}
+    renderDemo(qEl.value.trim().toLowerCase());
+  });
+
+  /* ---------- 其餘三區（都是圖4 那種卡） ---------- */
+  function renderCards(id, items, q, emptyMsg) {
+    var body = document.getElementById(id + "-body");
+    var list = items.filter(function (i) { return matches(i, q); });
+    setCount(id, loading[id] ? "…" : list.length);
+    if (loading[id] && !items.length) { body.innerHTML = emptyBox("正在載入…"); return; }
+    if (!list.length) { body.innerHTML = emptyBox(q ? "沒有符合的項目。" : emptyMsg); return; }
+    body.innerHTML = list.map(Omni.listCard).join("");
   }
 
-  /* ---------- Demo 自動掃描 ---------- */
-  function parseFolderName(name){
-    var m = name.match(/^([A-Za-z0-9]+)_(.+)$/);
-    return m ? { id:m[1], title:m[2] } : { id:"", title:name };
-  }
-  function fetchJson(url){
-    return fetch(url, { headers:{ Accept:"application/vnd.github+json" } })
-      .then(function(res){
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return res.json();
-      });
+  function renderAll() {
+    var q = qEl.value.trim().toLowerCase();
+    renderDemo(q);
+    renderCards("analysis", analysis.slice().sort(byDateDesc), q, "掃不到任何分析報告。");
+    renderCards("report", manualOf("report"), q, "還沒有其他報告 — 在 catalog.js 加入 cat: \"report\" 的項目。");
+    renderCards("links", manualOf("links"), q, "常用連結待補 — 在 catalog.js 加入 cat: \"links\" 的項目。");
   }
 
-  function discoverDemos(){
-    // 手動在 catalog.js 加過的 demo 網址不要重複收錄
-    var known = {};
-    items.forEach(function(i){ if (i.cat === "demo") known[i.url] = true; });
+  qEl.addEventListener("input", renderAll);
+  renderAll();
 
-    return fetchJson(API_BASE + "/contents/Project")
-      .then(function(proj){
-        var slots = proj.filter(function(i){ return i.type === "dir" && i.name === "Slots"; })[0];
-        if (!slots) throw new Error("找不到 Slots 目錄");
-        return fetchJson(API_BASE + "/git/trees/" + slots.sha + "?recursive=1");
-      })
-      .then(function(tree){
-        var nodes = tree.tree || [];
-        // 頂層「代號_名稱」資料夾（中文開頭的 其他/ 因此自動排除）
-        var folders = nodes.filter(function(n){
-          return n.type === "tree" && /^[A-Za-z0-9]+_[^/]+$/.test(n.path);
-        }).map(function(n){ return n.path; });
-
-        // 只收真的有 index.html 的（有 demo 才上架）
-        var hasDemo = {};
-        nodes.forEach(function(n){
-          var m = n.path.match(/^([A-Za-z0-9]+_[^/]+)\/index\.html$/);
-          if (m) hasDemo[m[1]] = true;
-        });
-
-        var pending = [];
-        folders.forEach(function(folder){
-          if (!hasDemo[folder]) return;
-          var gameBase = PAGES_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder);
-          var url = gameBase + "/";
-          if (known[url]) return;
-          var info = parseFolderName(folder);
-          var entry = {
-            title: info.id ? info.id + " " + info.title : info.title,
-            url: url, cat: "demo", game: info.id, desc: "", tags: []
-          };
-          items.push(entry);
-          pending.push({ entry: entry, gameBase: gameBase });
-        });
-
-        if (tree.truncated) notes.push("GitHub 目錄樹過大被截斷，Demogame 清單可能不完整");
-        loading--;             // demo 清單已定，只剩遊戲類型待補
-        sortItems();
-        render();
-
-        // 逐款讀 game_rule.md 補上遊戲類型（同源的 Pages 檔案，不吃 API 額度）
-        return Promise.all(pending.map(function(p){
-          return fetchPlay(p.gameBase).then(function(play){ p.entry.desc = play; });
-        })).then(render);
-      })
-      .catch(function(err){
-        loading--;
-        notes.push("Demogame 掃描失敗（" + err.message + "）");
-        render();
-      });
-  }
-
-  /* ---------- 競品分析：解析 Project/競品分析/README.md 的表格 ----------
-     表一（每份報告一列）：
-       | 遊戲 | 廠商 | 付費轉 | 報告日期 | 格式版本 | 報告 | md 正本位置 |
-       | Super Ace | JILI | 166,050 | 2026-08-26 | 現行 | [開啟](遊戲數據_Super_Ace.html) | ... |
-     表二（遊戲為欄）：
-       | 指標 | Super Ace | Lucky Neko | ... |
-       | **總 RTP** | **94.158%** | ... |
-       | 官方 RTP | 96.50% | ... |
-     解析失敗不影響上架，只是卡片少了說明。                                */
-  function parseAnalysisReadme(text){
-    var out = { byFile:{}, rtp:{}, official:{} };
-    var lines = text.split(/\r?\n/);
-    var cells = function(line){
-      return line.replace(/^\s*\|/, "").replace(/\|\s*$/, "").split("|")
-                 .map(function(s){ return s.replace(/\*\*/g, "").trim(); });
-    };
-    var isRow = function(l){ return /^\s*\|/.test(l || ""); };
-
-    for (var i = 0; i < lines.length; i++){
-      // 表一：以「| 遊戲 |」開頭
-      if (/^\s*\|\s*遊戲\s*\|/.test(lines[i])){
-        for (var j = i + 2; j < lines.length && isRow(lines[j]); j++){
-          var c = cells(lines[j]);
-          var link = (c[5] || "").match(/\(([^)]+\.html)\)/);
-          if (!link) continue;
-          out.byFile[link[1]] = { name:c[0], vendor:c[1], spins:c[2], date:c[3] };
-        }
-      }
-      // 表二：以「| 指標 |」開頭，第一列是遊戲名
-      if (/^\s*\|\s*指標\s*\|/.test(lines[i])){
-        var cols = cells(lines[i]).slice(1);
-        for (var k = i + 2; k < lines.length && isRow(lines[k]); k++){
-          var r = cells(lines[k]);
-          var label = r[0];
-          var vals = r.slice(1);
-          if (label === "總 RTP")   cols.forEach(function(g, n){ out.rtp[g] = vals[n]; });
-          if (label === "官方 RTP") cols.forEach(function(g, n){ out.official[g] = vals[n]; });
-        }
-      }
-    }
-    return out;
-  }
-
-  function analysisDesc(info, meta){
-    var g = info.name;
-    var p = [];
-    var rtp = meta.rtp[g], off = meta.official[g];
-    if (rtp && rtp !== "⏳"){
-      p.push("總 RTP " + rtp + (off && off !== "⏳" ? "／官方 " + off : ""));
-    }
-    if (info.spins) p.push("付費轉 " + info.spins);
-    return p.join("，");
-  }
-
-  function discoverAnalysis(){
-    var known = {};
-    items.forEach(function(i){ if (i.cat === "analysis") known[i.url] = true; });
-
-    // 目錄清單走 API；README 是同源的 Pages 靜態檔，不吃 API 額度
-    return Promise.all([
-      fetchJson(ANALYSIS_API),
-      fetch(ANALYSIS_BASE + "/README.md")
-        .then(function(r){ return r.ok ? r.text() : ""; })
-        .catch(function(){ return ""; })
-    ]).then(function(res){
-      var list = res[0], meta = parseAnalysisReadme(res[1] || "");
-
-      list.filter(function(i){
-        return i.type === "file" && /^遊戲數據_.+\.html$/.test(i.name);
-      }).forEach(function(f){
-        var url = ANALYSIS_BASE + "/" + encodeURIComponent(f.name);
-        if (known[url]) return;
-        var info = meta.byFile[f.name] || {};
-        if (!info.name){
-          // README 沒列到這份，就從檔名反推遊戲名
-          info.name = f.name.replace(/^遊戲數據_/, "").replace(/\.html$/, "").replace(/_/g, " ");
-          notes.push("README 未列出 " + info.name + "，卡片資訊從檔名推得");
-        }
-        items.push({
-          title: info.name + " 遊戲數據",
-          url: url, cat: "analysis",
-          game: info.vendor || "",
-          desc: analysisDesc(info, meta),
-          date: info.date || "",
-          tags: info.vendor ? [info.vendor] : []
-        });
-      });
-
-      loading--;
-      sortItems();
-      render();
-    }).catch(function(err){
-      loading--;
-      notes.push("競品分析掃描失敗（" + err.message + "）");
-      render();
-    });
-  }
-
-  /* ---------- 啟動 ---------- */
-  qEl.addEventListener("input", render);
-  sortItems();
-  selectCat(DEFAULT_CAT);
-  discoverDemos();
-  discoverAnalysis();
+  Omni.loadGames().then(function (g) { games = g; loading.demo = false; renderAll(); });
+  Omni.loadAnalysis().then(function (a) { analysis = a; loading.analysis = false; renderAll(); });
 })();
 </script>
 </body>

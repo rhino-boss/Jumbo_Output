@@ -1,0 +1,250 @@
+/* ============================================================
+   Omniplay — 共用樣式（index.html 與 games.html）
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #eef2f9;
+  --surface: #ffffff;
+  --surface-2: #e3eaf5;
+  --border: #dbe2ee;
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6b6b;
+  --text-tag: #4a4a4a;
+
+  /* 分類色：區塊標題、卡片頂端色條、badge、色點共用 */
+  --cat-all: #9ba3af;
+  --cat-demo: #4a7fd0;        /* 藍 — Demogame */
+  --cat-analysis: #d9534f;    /* 紅 — 分析報告 */
+  --cat-report: #d9a13f;      /* 琥珀 — 其他報告 */
+  --cat-links: #6b8f71;       /* 綠 — 常用連結 */
+
+  --accent-dark: #2a3d5c;
+  --accent-mid: #3e6394;
+  --focus: #3e6394;
+
+  --radius: 16px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  --shadow-hover: 0 8px 32px rgba(0,0,0,0.13);
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Helvetica Neue', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+/* ── Hero ── */
+.hero {
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent-mid));
+  padding: 34px 48px 30px; color: #fff;
+}
+.hero-in { max-width: 1360px; margin: 0 auto; display: flex; gap: 16px; align-items: center; }
+/* icon 是深藍，疊在海軍藍 hero 上對比不足，加一圈淡白描邊維持可見度 */
+.hero .logo {
+  width: 44px; height: 44px; flex: none; border-radius: 10px;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.32);
+}
+.hero h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; }
+.hero h1 a { color: inherit; text-decoration: none; }
+.hero p { margin-top: 6px; font-size: 0.9rem; opacity: .7; }
+.hero .crumb { margin-top: 6px; font-size: .82rem; opacity: .75; }
+.hero .crumb a { color: #fff; text-decoration: none; opacity: .8; }
+.hero .crumb a:hover { opacity: 1; text-decoration: underline; }
+
+.container { flex: 1; max-width: 1360px; width: 100%; margin: 0 auto; padding: 30px 48px 72px; }
+
+/* ── 搜尋 ── */
+#q {
+  width: 100%; padding: 11px 15px; font-size: 0.9rem; font-family: inherit;
+  color: var(--text-primary); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px; outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+#q:focus { border-color: var(--focus); box-shadow: 0 0 0 3px rgba(62,99,148,.13); }
+#q::placeholder { color: var(--text-secondary); opacity: .75; }
+
+/* ── 區塊 ── */
+.section { margin-top: 30px; }
+.section:first-of-type { margin-top: 22px; }
+.sec-head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 8px 14px; margin-bottom: 14px; border-radius: 8px;
+  background: var(--sec-tint); border-left: 4px solid var(--sec-color);
+}
+.sec-head h2 { font-size: 1.06rem; font-weight: 800; letter-spacing: .3px; }
+.sec-head .n {
+  font-size: .76rem; font-weight: 700; color: var(--text-secondary);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 99px; padding: 1px 9px; font-variant-numeric: tabular-nums;
+}
+.sec-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.sec-btn {
+  font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer;
+  padding: 6px 12px; border-radius: 8px; text-decoration: none;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text-tag);
+  transition: border-color .15s, color .15s;
+}
+.sec-btn:hover { border-color: var(--sec-color); color: var(--text-primary); }
+.sec-btn.disabled { opacity: .5; cursor: not-allowed; }
+
+.section.demo     { --sec-color: var(--cat-demo);     --sec-tint: #e6eefb; }
+.section.analysis { --sec-color: var(--cat-analysis); --sec-tint: #fbeaea; }
+.section.report   { --sec-color: var(--cat-report);   --sec-tint: #fbf3e4; }
+.section.links    { --sec-color: var(--cat-links);   --sec-tint: #e9f1ea; }
+
+.sec-empty {
+  padding: 26px 18px; text-align: center; font-size: .85rem;
+  color: var(--text-secondary); background: var(--surface);
+  border: 1px dashed var(--border); border-radius: 12px;
+}
+
+/* ── Demogame 橫向軌道：一次看 3 張，其餘左右滑動 ── */
+.rail {
+  display: flex; gap: 14px; overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory; padding-bottom: 10px;
+  scrollbar-width: thin; scrollbar-color: var(--surface-2) transparent;
+}
+.rail::-webkit-scrollbar { height: 8px; }
+.rail::-webkit-scrollbar-track { background: transparent; }
+.rail::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 99px; }
+.rail::-webkit-scrollbar-thumb:hover { background: #cdd8e8; }
+.rail > * { flex: 0 0 calc((100% - 28px) / 3); scroll-snap-align: start; }
+
+/* ── 遊戲卡（圖1 的樣式，沿用 Cworld demogame 的卡片） ── */
+.gcard {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; padding: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  transition: box-shadow .25s ease, transform .25s ease;
+}
+.gcard:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+
+.ribbon {
+  position: absolute; top: 0; right: 0; width: 92px; height: 92px;
+  overflow: hidden; pointer-events: none; z-index: 2;
+}
+.ribbon span {
+  position: absolute; top: 18px; right: -26px; width: 120px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, #f6d365, #c9962f);
+  color: #fff; font-size: .68rem; font-weight: 800; letter-spacing: 1px;
+  text-align: center; padding: 4px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,.22);
+}
+
+.gcover {
+  width: 100%; aspect-ratio: 330/250; border-radius: 12px;
+  background: linear-gradient(135deg, #3a2c1a, #6b4e2a);
+  position: relative; overflow: hidden;
+}
+.gcover img { display: block; width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 1; }
+/* 只有沒封面時才看得到的佔位 icon */
+.gcover .ph {
+  position: absolute; inset: 0; z-index: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 2.4rem;
+}
+.gcover .no-demo {
+  position: absolute; inset: 0; background: rgba(0,0,0,.45); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; font-weight: 700; color: rgba(255,255,255,.6); letter-spacing: .5px;
+}
+
+.gbody { padding: 13px 6px 0; flex: 1; text-align: center; }
+.gtitle {
+  font-size: .96rem; font-weight: 800; letter-spacing: .4px;
+  padding-bottom: 11px; border-bottom: 1px solid var(--border);
+}
+.gtitle .ver {
+  display: inline-block; vertical-align: middle; margin-left: 7px;
+  font-size: .66rem; font-weight: 700; letter-spacing: 0;
+  color: var(--text-secondary); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 99px; padding: 2px 8px;
+}
+.gdesc {
+  padding: 11px 4px 13px; font-size: .78rem; color: var(--text-secondary);
+  line-height: 1.5; min-height: 56px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.gfoot { display: flex; gap: 9px; padding: 0 6px; margin-top: auto; }
+.btn {
+  flex: 1; border: 0; font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  padding: 10px 8px; border-radius: 8px; white-space: nowrap;
+  text-decoration: none; font-size: .8rem; font-weight: 700;
+  transition: background .15s, opacity .15s;
+}
+.btn .ico { padding-left: 9px; border-left: 1px solid rgba(255,255,255,.25); line-height: 1; }
+.btn-info { background: #1a1a1a; color: #fff; }
+.btn-info:hover { background: #333; }
+.btn-play { background: #d32020; color: #fff; }
+.btn-play:hover { background: #ef3a3a; }
+.btn.disabled {
+  background: var(--bg); border: 1px dashed var(--border);
+  color: var(--text-secondary); cursor: default;
+}
+.btn.disabled .ico { border-left-color: var(--border); }
+
+/* ── 清單／一般卡（圖4 的樣式） ── */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 13px; }
+.card {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; gap: 7px;
+  padding: 16px 16px 15px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow);
+  text-decoration: none; color: inherit;
+  transition: box-shadow .25s ease, transform .25s ease;
+}
+.card:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent); border-radius: 12px 12px 0 0;
+}
+.card.demo { --accent: var(--cat-demo); }
+.card.analysis { --accent: var(--cat-analysis); }
+.card.report { --accent: var(--cat-report); }
+.card.links { --accent: var(--cat-links); }
+
+.card-top { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+.badge {
+  padding: 2px 8px; font-size: .66rem; font-weight: 800;
+  letter-spacing: .3px; border-radius: 99px;
+}
+.badge.demo { color: #2f5f9e; background: #e8f0fb; }
+.badge.analysis { color: #b03a36; background: #fbeceb; }
+.badge.report { color: #9a6c17; background: #fbf2e2; }
+.badge.links { color: #4a6e50; background: #eaf2eb; }
+.gid { font-size: .72rem; font-weight: 700; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.ext { margin-left: auto; font-size: .66rem; color: var(--text-secondary); opacity: .8; }
+.card h2 { font-size: .95rem; font-weight: 800; line-height: 1.4; }
+.card p { font-size: .79rem; color: var(--text-secondary); line-height: 1.5; }
+
+footer {
+  text-align: center; padding: 24px; font-size: .78rem;
+  color: var(--text-secondary); border-top: 1px solid var(--border);
+}
+
+/* ── games.html 的排序列 ── */
+.toolbar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin: 22px 0 16px; font-size: .82rem; color: var(--text-secondary);
+}
+.toolbar .spacer { margin-left: auto; }
+.sec-btn.active { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; }
+
+@media (max-width: 900px) {
+  .rail > * { flex: 0 0 calc((100% - 14px) / 2); }
+}
+@media (max-width: 640px) {
+  .hero { padding: 28px 24px 24px; }
+  .hero h1 { font-size: 1.45rem; }
+  .container { padding: 22px 24px 60px; }
+  .grid { grid-template-columns: 1fr; }
+  .rail > * { flex: 0 0 86%; }
+  .sec-actions { width: 100%; margin-left: 0; }
+}

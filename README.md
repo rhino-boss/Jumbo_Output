@@ -1,146 +1,136 @@
 # Omniplay（Jumbo_Output）
 
-工作成果的網頁索引站。首頁 `index.html` 是目錄，卡片點進去開對應網頁。
+工作成果的網頁索引站。線上位址：<https://rhino-boss.github.io/Jumbo_Output/>
 
-線上位址：<https://rhino-boss.github.io/Jumbo_Output/>
-
-## 這個倉庫幾乎不放內容
-
-兩個分類的內容**全部從 `rhino-boss/Jumbo` 自動掃描**，這裡只有索引本身：
+## 檔案
 
 ```
-index.html      索引首頁（搜尋 + 分類下拉）
-catalog.js      手動收錄清單，平常是空的（只在要掛例外網頁時才寫）
-assets/         favicon（深藍底白 J）
-.nojekyll       讓 GitHub Pages 原樣輸出，不跑 Jekyll
+index.html         首頁，分四區
+games.html         Demogame 完整頁（全部遊戲＋排序＋清單／卡片切換）
+catalog.js         手動收錄清單（其他報告、常用連結寫在這）
+assets/style.css   兩頁共用樣式
+assets/app.js      兩頁共用的資料載入與卡片渲染
+assets/favicon.*   深藍底白 J
+.nojekyll          讓 GitHub Pages 原樣輸出，不跑 Jekyll
 ```
 
-| 分類 | 來源 | 連結指向 |
-|---|---|---|
-| Demogame | `Project/Slots/<代號_名稱>/index.html` | `rhino-boss.github.io/Jumbo/Project/Slots/<資料夾>/` |
-| 競品分析 | `Project/競品分析/遊戲數據_*.html` | `rhino-boss.github.io/Jumbo/Project/競品分析/<檔名>` |
-| 其他報告 | `catalog.js` 手動收錄（不掃描） | 依項目而定 |
+## 首頁四區
 
-**所以新增內容不需要動這個倉庫** — 把檔案放進 Jumbo 專案對應位置並 push，
-這裡重新整理就會出現。
+| 區塊 | 色 | 來源 | 呈現 |
+|---|---|---|---|
+| Demogame | 藍 `#4a7fd0` | 自動掃描 `Project/Slots/<代號_名稱>/index.html` | 橫向軌道，一次 3 張，可左右滑動；可切清單 |
+| 分析報告 | 紅 `#d9534f` | 自動掃描 `Project/競品分析/遊戲數據_*.html` | 卡片格 |
+| 其他報告 | 琥珀 `#d9a13f` | `catalog.js` 的 `cat: "report"` | 卡片格 |
+| 常用連結 | 綠 `#6b8f71` | `catalog.js` 的 `cat: "links"` | 卡片格（目前待補） |
 
-## Demogame 怎麼掃
+區塊標題是帶色條的色底橫幅，搜尋框在最上方、一次過濾全部四區。
 
-規則與 `Cworld/studio/demogame/index.html` 相同：
+## Demogame
 
-- 只取 `Project/Slots` 底下**頂層**符合 `代號_名稱` 的資料夾
-  （中文開頭的 `其他/` 因此自動排除，連帶排除「其他人的遊戲」與「未完成遊戲」）
-- 該資料夾底下要有 `index.html` 才算有 demo，才會上架
+### 卡片內容
 
-卡片說明顯示**遊戲類型**，讀該遊戲的 `game_rule.md` 後正規化成
-`Cluster Pay / Pay Anywhere / N Ways / N Lines`（＋Cascade 等額外特色），
-邏輯與 Cworld 的 `normalizePlay` 相同。例如：
+沿用 Cworld `studio/demogame` 的卡片：封面圖、NEW 緞帶、遊戲名＋版本號、
+遊戲類型、底部兩顆按鈕。
 
-```
-H016 幸運王牌       → 1,024 Ways / Cascade / Cascade Multiplier
-H026 彩罐熱舞 1000  → 20 Lines / Cascade
-H028 雷神爆金 1000  → 2,025–32,400 Ways / Megaways / Cascade
-```
+- **封面** ← `Project/Slots/其他/遊戲資源/<代號>.png`；缺圖時退回 🎰 佔位
+  （目前 H027、H028 沒有封面圖）
+- **版本號** ← `Versions/version_manifest.js` 的 `current`；沒這個檔就留空
+  （目前 H013 沒有）
+- **遊戲類型** ← `game_rule.md`，正規化成
+  `Cluster Pay / Pay Anywhere / N Ways / N Lines`（＋Cascade 等），
+  邏輯與 Cworld 的 `normalizePlay` 相同
+- **遊戲資訊** → GitHub 上的 `game_rule.md`（會渲染 markdown）；沒有規則書就停用
+- **開始遊玩** → demo 頁，開新視窗；沒有 `index.html` 的遊戲顯示「製作中」
 
-## 競品分析怎麼掃
+### 排序與 NEW
 
-列出 `Project/競品分析/` 底下的 `遊戲數據_*.html`（`索引.html` 不收），
-再讀同資料夾的 **`README.md`**，解析裡面兩張表格填卡片資訊：
+依**該遊戲資料夾的最後一筆 commit 時間**，最新的在前；同一天的用代號遞增。
+NEW 緞帶固定掛在最新的 3 款（在 games.html 切換排序時也不變）。
+
+### 橫向軌道
+
+一次顯示 3 張（`flex: 0 0 calc((100% - 28px)/3)`），其餘左右滑動，
+帶 `scroll-snap`。900px 以下 2 張、640px 以下 1 張。
+
+### 全部顯示
+
+右上角「全部顯示 →」進 `games.html`：全部遊戲、排序切換（更新時間／代號＋升降）、
+清單／卡片切換、搜尋。排序與檢視模式記在 `localStorage`。
+
+## 分析報告
+
+列出 `Project/競品分析/` 的 `遊戲數據_*.html`（`索引.html` 不收），
+再讀同資料夾的 **`README.md`** 解析兩張表格填卡片資訊：
 
 - 表一「| 遊戲 | 廠商 | 付費轉 | 報告日期 | … | 報告 |」→ 標題、廠商、付費轉、日期
-- 表二「| 指標 | <遊戲名>… |」的 `總 RTP` 與 `官方 RTP` 兩列 → 說明裡的 RTP
+- 表二「| 指標 | <遊戲名>… |」的 `總 RTP` 與 `官方 RTP` → 說明裡的 RTP
 
-產出的卡片長這樣：
+官方 RTP 是 `⏳` 時自動省略該段。README 沒列到的檔案仍會上架，標題從檔名反推。
 
-```
-[JILI] Super Ace 遊戲數據
-       總 RTP 94.158%／官方 96.50%，付費轉 166,050        2026-08-26
-```
-
-官方 RTP 是 `⏳` 時會自動省略該段。README 沒列到的檔案仍會上架，
-標題從檔名反推，並在筆數旁提示。
-
-> 因此**維護 `Project/競品分析/README.md` 的表格，就等於維護這個站的卡片內容**。
+> **維護 `Project/競品分析/README.md` 的表格，就等於維護這區的卡片內容。**
 
 ## API 用量
 
-GitHub API 共 3 次呼叫（未登入限每小時 60 次）：
+未登入的 GitHub API 限每小時 60 次。首頁冷啟動用 10 次：
 
 ```
-/contents/Project                    找 Slots 的 tree sha
-/git/trees/<sha>?recursive=1         一次抓整棵 Slots 子樹
-/contents/Project/競品分析            列出競品報告
+/contents/Project                  1   找 Slots 的 tree sha
+/git/trees/<sha>?recursive=1       1   一次抓整棵 Slots 子樹
+/contents/Project/競品分析          1   列出競品報告
+/commits?path=<遊戲資料夾>          7   每款遊戲的最後更新時間
 ```
 
-`game_rule.md` 與競品分析的 `README.md` 都是同源的 Pages 靜態檔，不吃 API 額度。
-任一邊掃描失敗時，另一邊仍正常顯示，並在筆數旁標示失敗原因。
+commit 時間快取在 `localStorage` 6 小時（key `omniplay-game-dates`），
+所以重新整理或跳到 `games.html` 通常只花 2–3 次。
+`game_rule.md`、`version_manifest.js`、競品分析的 `README.md` 都是同源的
+Pages 靜態檔，不吃額度。任一邊掃描失敗時其他區照常顯示。
 
-## 分類篩選
+## 新增內容
 
-一顆按鈕，點開選單選擇：**全部分類 / Demogame / 競品分析 / 其他報告**，
-選單右側顯示各分類筆數，按鈕左側色點跟著選取分類變色。支援點外部與 Esc 關閉。
+- **Demogame**：在 Jumbo 專案建 `Project/Slots/H0xx_名稱/index.html` 並 push
+- **分析報告**：把報告放進 `Project/競品分析/`、更新該資料夾的 `README.md` 表格
+- **其他報告／常用連結**：編輯這裡的 `catalog.js`
 
-**進站預設顯示 Demogame**（`index.html` 裡的 `DEFAULT_CAT`）。
-兩邊都還沒回來前顯示「正在載入清單…」，不會閃一下「沒有符合條件」。
+```js
+window.CATALOG = [
+  {
+    title: "某個常用網頁",
+    url: "https://example.com/",   // 完整外部網址，或站內相對路徑
+    cat: "links",                  // demo | analysis | report | links
+    game: "PG",                    // 選填
+    desc: "一行說明",               // 選填
+    date: "2026-08-28",            // 選填，用於排序
+    tags: ["PG"]                   // 選填
+  }
+];
+```
+
+`url` 以 `http(s)://` 開頭時卡片標示「外部連結 ↗」並開新視窗。
+手動項目的網址若與自動掃描到的相同會去重（以手動的為準）。
 
 ## 視覺風格
 
 沿用 Cworld 的設計語言，底色改為淺藍：頁面底 `#eef2f9`、白卡、
-`0 2px 12px rgba(0,0,0,.07)` 柔和陰影（hover 換 `0 8px 32px rgba(0,0,0,.13)` 並上浮 3px）、
-Helvetica Neue / PingFang TC 字族、海軍藍漸層 hero（`#2a3d5c → #3e6394`），
-分類色一組三色，**色點、卡片頂端 3px 色條、badge 三處共用**：
+`0 2px 12px rgba(0,0,0,.07)` 陰影（hover 換 `0 8px 32px rgba(0,0,0,.13)` 並上浮 3px）、
+Helvetica Neue / PingFang TC 字族、海軍藍漸層 hero（`#2a3d5c → #3e6394`）。
+固定亮色，沒有亮／深自動切換。
 
-| 分類 | 色 | 變數 | badge 文字／底 |
-|---|---|---|---|
-| 全部分類 | 灰 `#9ba3af` | `--cat-all` | — |
-| Demogame | 藍 `#4a7fd0` | `--cat-demo` | `#2f5f9e` / `#e8f0fb` |
-| 競品分析 | 紅 `#d9534f` | `--cat-analysis` | `#b03a36` / `#fbeceb` |
-| 其他報告 | 綠 `#3f9d6b` | `--cat-report` | `#2e7d54` / `#e6f2ea` |
-
-沒有做亮／深自動切換，是固定亮色。
-
-卡片刻意做小（欄寬下限 268px、內距 16px、圓角 12px），
-內容只有「分類標籤／標題／說明」三行，不顯示日期與標籤列 —
-日期仍用於排序與搜尋，只是不占版面。
-
-最上方那顆代號（`.gid`）只在**標題開頭不是它**時才顯示：
-Demogame 的標題本來就是「H016 幸運王牌」，代號會重複所以自動隱藏；
-競品分析的標題是「Super Ace 遊戲數據」，廠商（PG／PP／JILI）不在標題裡，照樣顯示。
+一般卡片（分析報告等）刻意做小：欄寬下限 268px、內距 16px、圓角 12px，
+只有「分類標籤／標題／說明」三行，不顯示日期與標籤列 —
+日期仍用於排序與搜尋，只是不占版面。卡片上的代號只在**標題開頭不是它**時才顯示。
 
 favicon 是深藍 `#1b3a6b` 底白 J，字形幾何沿用 Cworld 那顆紅底 C
 （64×64、`rx=14`、Helvetica Bold、`text-anchor:middle`），
 `x/y` 依 Arial Bold 的實際字形範圍反推以視覺置中。因為它疊在海軍藍 hero 上
 對比不足，hero 那顆 logo 加了 `box-shadow: 0 0 0 2px rgba(255,255,255,.32)` 描邊。
 
-## 手動掛一個例外網頁
-
-只有內容不在上面那兩個位置時才需要。編輯 `catalog.js`：
-
-```js
-window.CATALOG = [
-  {
-    title: "某份報告",
-    url: "https://example.com/report.html",  // 完整外部網址，或站內相對路徑
-    cat: "analysis",                         // demo | analysis
-    game: "PG",                              // 選填
-    desc: "一行說明",                         // 選填
-    date: "2026-08-27",                      // 選填，用於排序
-    tags: ["PG"]                             // 選填
-  }
-];
-```
-
-- `url` 以 `http://` 或 `https://` 開頭時，卡片標示「外部連結 ↗」並開新視窗。
-- 清單依 `date` 由新到舊排序。
-- 這裡寫的網址若與自動掃描到的相同，會自動去重（以手動的為準）。
-
 ## 本機預覽
 
-直接用瀏覽器開 `index.html`。兩個分類都需要連得上網路才會有內容。
+直接用瀏覽器開 `index.html`。內容需要連得上網路才會出現。
 
 ## 部署
 
 推到 `main` 即自動部署（Settings → Pages：`Deploy from a branch`、`main` / `/ (root)`）。
 
-> 這個倉庫是公開的，但因為內容全靠外部連結，倉庫裡實際只有索引與 favicon。
+> 這個倉庫是公開的，但內容全靠外部連結，倉庫裡只有索引、共用 CSS/JS 與 favicon。
 > 被連過去的檔案本來就在公開的 `rhino-boss/Jumbo` Pages 上。
