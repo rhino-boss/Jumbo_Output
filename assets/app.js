@@ -182,28 +182,38 @@ window.Omni = (function () {
           return n.type === "tree" && /^[A-Za-z0-9]+_[^/]+$/.test(n.path);
         }).map(function (n) { return n.path; });
 
-        var hasDemo = {};
+        /* 整棵樹已經在手上，所以 demo／版本檔／封面圖在不在都直接從樹判斷，
+           不必先打再看 404 — 省下多餘請求，也不會在 console 留紅字 */
+        var hasDemo = {}, hasManifest = {}, hasCover = {};
         nodes.forEach(function (n) {
           var m = n.path.match(/^([A-Za-z0-9]+_[^/]+)\/index\.html$/);
-          if (m) hasDemo[m[1]] = true;
+          if (m) { hasDemo[m[1]] = true; return; }
+          m = n.path.match(/^([A-Za-z0-9]+_[^/]+)\/Versions\/version_manifest\.js$/);
+          if (m) { hasManifest[m[1]] = true; return; }
+          m = n.path.match(/遊戲資源\/([A-Za-z0-9]+)\.png$/);
+          if (m) hasCover[m[1]] = true;
         });
 
         return Promise.all(folders.map(function (folder) {
           var info = parseFolderName(folder);
           var gameBase = PAGES_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder);
-          return Promise.all([fetchPlay(gameBase), fetchVersion(gameBase), fetchUpdated(folder)])
-            .then(function (r) {
-              return {
-                folder: folder, id: info.id, name: info.name,
-                play: r[0].play, version: r[1], updated: r[2],
-                hasDemo: !!hasDemo[folder],
-                playUrl: gameBase + "/",
-                coverUrl: COVER_BASE + "/" + encodeURIComponent(info.id) + ".png",
-                ruleUrl: r[0].hasRule
-                  ? BLOB_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder) + "/game_rule.md"
-                  : ""
-              };
-            });
+          return Promise.all([
+            fetchPlay(gameBase),
+            hasManifest[folder] ? fetchVersion(gameBase) : Promise.resolve(""),
+            fetchUpdated(folder)
+          ]).then(function (r) {
+            return {
+              folder: folder, id: info.id, name: info.name,
+              play: r[0].play, version: r[1], updated: r[2],
+              hasDemo: !!hasDemo[folder],
+              playUrl: gameBase + "/",
+              coverUrl: hasCover[info.id]
+                ? COVER_BASE + "/" + encodeURIComponent(info.id) + ".png" : "",
+              ruleUrl: r[0].hasRule
+                ? BLOB_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder) + "/game_rule.md"
+                : ""
+            };
+          });
         }));
       })
       .then(function (games) {
@@ -291,10 +301,10 @@ window.Omni = (function () {
     return '<div class="gcard">' +
       (isNew ? '<div class="ribbon"><span>NEW</span></div>' : '') +
       '<div class="gcover">' +
-        '<span class="ph">🎰</span>' +
-        '<img src="' + esc(g.coverUrl) + '" alt="" loading="lazy"' +
-             ' onload="var p=this.parentNode.querySelector(\'.ph\'); if(p) p.remove();"' +
-             ' onerror="this.remove();">' +
+        // 沒有封面圖的遊戲直接只放佔位，不掛 <img>（不會產生失敗請求）
+        (g.coverUrl
+          ? '<img src="' + esc(g.coverUrl) + '" alt="" loading="lazy">'
+          : '<span class="ph">🎰</span>') +
         (g.hasDemo ? '' : '<div class="no-demo">尚無 Demo</div>') +
       '</div>' +
       '<div class="gbody">' +
