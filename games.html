@@ -36,8 +36,7 @@
     <span id="count">…</span>
     <div class="spacer"></div>
     <span>排序</span>
-    <button class="sec-btn" type="button" data-sort="date">更新時間</button>
-    <button class="sec-btn" type="button" data-sort="id">代號</button>
+    <button class="sec-btn" type="button" id="sort-key" title="點一下切換排序依據">⇅ 更新時間</button>
     <button class="sec-btn" type="button" id="sort-dir" title="切換升冪／降冪">↓</button>
     <button class="sec-btn" type="button" id="view-toggle">☰ 清單</button>
   </div>
@@ -56,6 +55,7 @@
   var qEl = document.getElementById("q");
   var body = document.getElementById("body");
   var countEl = document.getElementById("count");
+  var keyBtn = document.getElementById("sort-key");
   var dirBtn = document.getElementById("sort-dir");
   var viewBtn = document.getElementById("view-toggle");
 
@@ -103,9 +103,7 @@
     Omni.notes.forEach(function (n) { parts.push(n); });
     countEl.textContent = loading ? "正在載入…" : parts.join(" · ");
 
-    document.querySelectorAll("[data-sort]").forEach(function (b) {
-      b.classList.toggle("active", b.dataset.sort === sortKey);
-    });
+    keyBtn.textContent = "⇅ " + (sortKey === "id" ? "代號" : "更新時間");
     dirBtn.textContent = sortDesc ? "↓" : "↑";
     dirBtn.title = sortDesc
       ? (sortKey === "date" ? "新 → 舊" : "大 → 小")
@@ -137,8 +135,10 @@
     }
   }
 
-  document.querySelectorAll("[data-sort]").forEach(function (b) {
-    b.addEventListener("click", function () { sortKey = b.dataset.sort; persist(); render(); });
+  // 排序依據合併成一顆按鈕，點一下在「更新時間」與「代號」之間切換
+  keyBtn.addEventListener("click", function () {
+    sortKey = sortKey === "id" ? "date" : "id";
+    persist(); render();
   });
   dirBtn.addEventListener("click", function () { sortDesc = !sortDesc; persist(); render(); });
   viewBtn.addEventListener("click", function () {

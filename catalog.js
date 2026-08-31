@@ -21,6 +21,8 @@
                    沒日期的維持在這個檔案裡的順序
      tags    選填  字串陣列（目前卡片上不顯示，但可被搜尋）
 
+   首頁每區只顯示前 3 筆，所以放在最前面的會是預設看到的那幾筆。
+
    demo / analysis 也可以手動加，用來掛「不在那兩個位置」的網頁；
    網址若與自動掃描到的相同會自動去重（以手動的為準）。
    ============================================================ */
@@ -34,7 +36,25 @@ window.CATALOG = [
     date: "2026-08-28"
   },
 
-  /* ---- 常用連結（順序即顯示順序） ---- */
+  /* ---- 常用連結（順序即顯示順序，首頁只顯示前 3 個） ---- */
+  {
+    title: "測試環境 — Dev",
+    url: "https://ghdev.jigaming.com.tw/login",
+    cat: "links", game: "測試",
+    desc: "開發測試站"
+  },
+  {
+    title: "常用連結整理",
+    url: "https://docs.google.com/spreadsheets/d/1WcNH7Mu_IDXAhMvzMX-LHEzyiusUkgLV4I2O-vN6XcY/edit?gid=1289038844#gid=1289038844",
+    cat: "links", game: "Sheets",
+    desc: "連結總表（這一區的來源）"
+  },
+  {
+    title: "遊戲代號一覽",
+    url: "https://docs.google.com/spreadsheets/d/1q1AzYQMf86_P2C-N5iFOUD8neyumS4vH_u1odIZzPvg/edit?gid=0#gid=0",
+    cat: "links", game: "Sheets",
+    desc: "iGaming 遊戲代號與 Game ID 對照"
+  },
   {
     title: "HR 系統",
     url: "https://hr.jumbogames.com.tw/portal/40/default.aspx",
@@ -84,33 +104,15 @@ window.CATALOG = [
     desc: "數學相關的權限對照表"
   },
   {
-    title: "遊戲代號一覽",
-    url: "https://docs.google.com/spreadsheets/d/1q1AzYQMf86_P2C-N5iFOUD8neyumS4vH_u1odIZzPvg/edit?gid=0#gid=0",
-    cat: "links", game: "Sheets",
-    desc: "iGaming 遊戲代號與 Game ID 對照"
-  },
-  {
     title: "線上遊戲資源",
     url: "https://docs.google.com/spreadsheets/d/1DbJQoP7Wz7lEs2Osxj96YUGMs8lyrXZbwfnLEivAhKE/edit?gid=0#gid=0",
     cat: "links", game: "Sheets",
     desc: "已上線遊戲的資源清單"
   },
   {
-    title: "測試環境 — Dev",
-    url: "https://ghdev.jigaming.com.tw/login",
-    cat: "links", game: "測試",
-    desc: "開發測試站"
-  },
-  {
     title: "測試環境 — Club",
     url: "https://jiclub.jigaming777.com/login",
     cat: "links", game: "測試",
     desc: "Club 測試站"
-  },
-  {
-    title: "常用連結整理",
-    url: "https://docs.google.com/spreadsheets/d/1WcNH7Mu_IDXAhMvzMX-LHEzyiusUkgLV4I2O-vN6XcY/edit?gid=1289038844#gid=1289038844",
-    cat: "links", game: "Sheets",
-    desc: "連結總表（這一區的來源）"
   }
 ];

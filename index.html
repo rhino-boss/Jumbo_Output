@@ -58,7 +58,6 @@
       <h2>Demogame</h2>
       <span class="n" id="n-demo"></span>
       <div class="sec-actions">
-        <button class="sec-btn" id="demo-view" type="button" title="切換卡片／清單">☰ 清單</button>
         <button class="sec-btn" data-more="demo" type="button" hidden></button>
         <a class="sec-link" href="games.html">完整頁 →</a>
       </div>
@@ -112,21 +111,15 @@
 <script src="assets/app.js"></script>
 <script>
 (function () {
-  var VIEW_KEY = "omniplay-demo-view";    // "rail" | "list"
   var LIMIT = 3;                          // 每區預設只顯示 3 筆
   var expanded = { demo: false, analysis: false, report: false, links: false };
 
   var qEl = document.getElementById("q");
-  var viewBtn = document.getElementById("demo-view");
   var manual = (window.CATALOG || []).slice();
 
   var games = [];
   var analysis = [];
   var loading = { demo: true, analysis: true };
-  var demoView = (function () {
-    try { return localStorage.getItem(VIEW_KEY) === "list" ? "list" : "rail"; }
-    catch (e) { return "rail"; }
-  })();
 
   // 有日期的排前面（新到舊）；沒日期的維持 catalog.js 裡的順序（sort 是穩定的）
   function manualOf(cat) {
@@ -202,9 +195,6 @@
     var list = games.filter(function (g) { return matches(g, q); });
     setCount("demo", loading.demo && !games.length ? null : list.length + " 款");
 
-    viewBtn.textContent = demoView === "list" ? "▦ 卡片" : "☰ 清單";
-    viewBtn.title = demoView === "list" ? "點一下切換成卡片" : "點一下切換成清單";
-
     setMoreBtn("demo", list.length, q);
 
     if (loading.demo && !games.length) { body.className = ""; body.innerHTML = emptyBox("正在載入 Demogame…"); return; }
@@ -214,21 +204,12 @@
     var newest = {};
     list.slice(0, 3).forEach(function (g) { if (g.updated) newest[g.folder] = true; });
 
-    var shown = limit(list, "demo", q);
-    if (demoView === "list") {
-      body.className = "grid";
-      body.innerHTML = shown.map(function (g) { return Omni.listCard(Omni.gameAsItem(g)); }).join("");
-    } else {
-      body.className = "rail";
-      body.innerHTML = shown.map(function (g) { return Omni.gameCard(g, !!newest[g.folder]); }).join("");
-    }
+    // 首頁固定用遊戲卡；卡片／清單切換只在完整頁 games.html 提供
+    body.className = "rail";
+    body.innerHTML = limit(list, "demo", q).map(function (g) {
+      return Omni.gameCard(g, !!newest[g.folder]);
+    }).join("");
   }
-
-  viewBtn.addEventListener("click", function () {
-    demoView = demoView === "list" ? "rail" : "list";
-    try { localStorage.setItem(VIEW_KEY, demoView); } catch (e) {}
-    renderDemo(qEl.value.trim().toLowerCase());
-  });
 
   /* ---------- 卡片區（分析報告、其他報告） ---------- */
   function renderCards(id, items, q, unit, emptyMsg) {

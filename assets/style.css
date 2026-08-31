@@ -298,7 +298,6 @@ footer {
   margin: 22px 0 16px; font-size: .82rem; color: var(--text-secondary);
 }
 .toolbar .spacer { margin-left: auto; }
-.sec-btn.active { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; }
 
 @media (max-width: 900px) {
   .rail > * { flex: 0 0 calc((100% - 14px) / 2); }
