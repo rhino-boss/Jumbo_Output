@@ -25,6 +25,7 @@
 
 <div class="container">
   <input id="q" type="search" placeholder="搜尋遊戲名稱、代號、玩法、廠商、報告…" autocomplete="off">
+  <div class="notes" id="notes" hidden></div>
 
   <!-- ── Demogame ── -->
   <div class="section demo" id="sec-demo">
@@ -148,8 +149,18 @@
     body.innerHTML = list.map(Omni.listCard).join("");
   }
 
+  function renderNotes() {
+    var box = document.getElementById("notes");
+    if (!Omni.notes.length) { box.hidden = true; return; }
+    box.hidden = false;
+    box.innerHTML = Omni.notes.map(function (n) {
+      return '<div>⚠ ' + Omni.esc(n) + '</div>';
+    }).join("");
+  }
+
   function renderAll() {
     var q = qEl.value.trim().toLowerCase();
+    renderNotes();
     renderDemo(q);
     renderCards("analysis", analysis.slice().sort(byDateDesc), q, "掃不到任何分析報告。");
     renderCards("report", manualOf("report"), q, "還沒有其他報告 — 在 catalog.js 加入 cat: \"report\" 的項目。");

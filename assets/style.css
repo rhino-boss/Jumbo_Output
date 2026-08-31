@@ -74,6 +74,13 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
 #q:focus { border-color: var(--focus); box-shadow: 0 0 0 3px rgba(62,99,148,.13); }
 #q::placeholder { color: var(--text-secondary); opacity: .75; }
 
+/* 掃描失敗／額度用完的提示 */
+.notes {
+  margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+  background: #fbf3e4; border-left: 4px solid var(--cat-report);
+  font-size: .82rem; color: #7a5a14; line-height: 1.6;
+}
+
 /* ── 區塊 ── */
 .section { margin-top: 30px; }
 .section:first-of-type { margin-top: 22px; }

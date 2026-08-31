@@ -74,20 +74,33 @@ NEW 緞帶固定掛在最新的 3 款（在 games.html 切換排序時也不變�
 
 ## API 用量
 
-未登入的 GitHub API 限每小時 60 次。首頁冷啟動用 10 次：
+未登入的 GitHub API 限**每小時 60 次，而且依對外 IP 計算** —
+辦公室共用一個 IP 時，是全辦公室一起分這 60 次。首頁冷啟動用 9 次：
 
 ```
-/contents/Project                  1   找 Slots 的 tree sha
-/git/trees/<sha>?recursive=1       1   一次抓整棵 Slots 子樹
-/contents/Project/競品分析          1   列出競品報告
-/commits?path=<遊戲資料夾>          7   每款遊戲的最後更新時間
+/git/trees/main:Project/Slots?recursive=1   1   一次取回整棵 Slots 子樹
+/contents/Project/競品分析                   1   列出競品報告
+/commits?path=<遊戲資料夾>                   7   每款遊戲的最後更新時間
 ```
 
-commit 時間快取在 `localStorage` 6 小時（key `omniplay-game-dates`），
-所以重新整理或跳到 `games.html` 通常只花 2–3 次。
+commit 時間快取在 `localStorage` 24 小時（key `omniplay-game-dates`），
+所以重新整理或跳到 `games.html` 通常只花 2 次。
 另有 11 次同源 Pages 靜態檔請求（7 份 `game_rule.md`、3 份 `version_manifest.js`、
-1 份競品分析 `README.md`），不吃額度，且全部都會成功。
-任一邊掃描失敗時其他區照常顯示，並在該區標示失敗原因。
+1 份競品分析 `README.md`），不吃額度。
+
+### 額度用完時的降級行為
+
+`403`／`429` 會被單獨辨識為「額度用完」，並依情況降級，不會讓區塊無聲變空白：
+
+| 情況 | 行為 |
+|---|---|
+| 只有 commits 打不通 | 遊戲照常顯示，排序改用 `game_rule.md` 的**撰寫日期**，並顯示提示 |
+| 目錄也打不通、但有 24 小時內的快取 | 顯示上次掃到的清單，並說明是快取 |
+| 目錄打不通且無快取 | 該區為空，但明確告知是額度問題、稍後重新整理即可 |
+
+碰到第一次 `403` 後就不再打剩下的 commits（先探一款再平行抓其餘，
+否則平行請求會讓旗標來不及生效）。
+其他報告與常用連結是純靜態的，任何情況都正常顯示。
 
 ## 新增內容
 

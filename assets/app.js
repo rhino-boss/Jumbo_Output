@@ -39,9 +39,17 @@ window.Omni = (function () {
   }
   function isExternal(u) { return /^https?:\/\//i.test(u || ""); }
 
+  /* 未登入的 GitHub API 是每小時 60 次、且依「對外 IP」計算 —
+     辦公室共用一個 IP 時很容易用完，所以把額度用盡單獨標成一種錯誤，
+     才能給使用者看得懂的訊息，而不是一片空白。 */
   function fetchJson(url) {
     return fetch(url, { headers: { Accept: "application/vnd.github+json" } })
       .then(function (res) {
+        if (res.status === 403 || res.status === 429) {
+          var e = new Error("GitHub API 額度用完（每小時 60 次，同一 IP 共用）");
+          e.rateLimited = true;
+          throw e;
+        }
         if (!res.ok) throw new Error("HTTP " + res.status);
         return res.json();
       });
@@ -101,18 +109,22 @@ window.Omni = (function () {
     return m ? { id: m[1], name: m[2] } : { id: "", name: name };
   }
 
-  // game_rule.md 的表格列：| 遊戲類型 | Video Slot - 1,024 Ways / Cascade |
+  /* game_rule.md 的表格列：| 遊戲類型 | Video Slot - 1,024 Ways / Cascade |
+     另外抓「> 撰寫日期：2026-08-11」當備用排序依據 —
+     API 額度用完時仍有個合理的時間可以排序。 */
   function fetchPlay(gameBase) {
     return fetchText(gameBase + "/game_rule.md").then(function (text) {
-      if (!text) return { play: "", hasRule: false };
+      if (!text) return { play: "", hasRule: false, docDate: 0 };
       var cell = function (label) {
         var m = text.match(new RegExp("\\|\\s*" + label + "\\s*\\|([^|\\n]*)\\|"));
         var v = m ? m[1].trim().replace(/^`|`$/g, "") : "";
         return (!v || v === "-") ? "" : v;
       };
+      var d = text.match(/撰寫日期[：:]\s*(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
       return {
         play: normalizePlay(cell("遊戲類型"), cell("中獎方式"), cell("最小 / 最大 Ways")),
-        hasRule: true
+        hasRule: true,
+        docDate: d ? Date.UTC(+d[1], +d[2] - 1, +d[3]) : 0
       };
     });
   }
@@ -141,7 +153,7 @@ window.Omni = (function () {
   /* 最後更新時間＝該遊戲資料夾的最後一筆 commit 時間。
      每款 1 次 API，結果快取 6 小時，避免每次進頁面都吃掉額度。 */
   var CACHE_KEY = "omniplay-game-dates";
-  var CACHE_TTL = 6 * 60 * 60 * 1000;
+  var CACHE_TTL = 24 * 60 * 60 * 1000;   // 拉長到 24 小時，少吃額度
   var dateCache = (function () {
     try {
       var c = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
@@ -153,8 +165,11 @@ window.Omni = (function () {
       localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), dates: dateCache }));
     } catch (e) { /* localStorage 不可用就算了 */ }
   }
+  var rateLimited = false;   // 一旦碰到額度上限就別再打，省下後續必然失敗的請求
+
   function fetchUpdated(folder) {
     if (folder in dateCache) return Promise.resolve(dateCache[folder]);
+    if (rateLimited) return Promise.resolve(0);
     var path = SLOTS_PATH + "/" + folder;
     return fetchJson(API_BASE + "/commits?path=" + encodeURIComponent(path) + "&per_page=1")
       .then(function (arr) {
@@ -162,17 +177,65 @@ window.Omni = (function () {
         dateCache[folder] = ts; saveDateCache();
         return ts;
       })
-      .catch(function () { dateCache[folder] = 0; saveDateCache(); return 0; });
+      .catch(function (e) {
+        if (e && e.rateLimited) { rateLimited = true; return 0; }
+        dateCache[folder] = 0; saveDateCache();
+        return 0;
+      });
+  }
+
+  /* 一次取回所有遊戲的更新時間。
+     先探第一款確認額度還在，再平行抓其餘 —— 若一開始就打平行，
+     rateLimited 旗標會來不及生效，額度用完時會白打每一款。
+     全部命中快取時 fetchUpdated 立即回傳，不會多一趟延遲。 */
+  function fetchDates(folders) {
+    var out = {};
+    if (!folders.length) return Promise.resolve(out);
+    return fetchUpdated(folders[0]).then(function (ts) {
+      out[folders[0]] = ts;
+      var rest = folders.slice(1);
+      if (rateLimited) { rest.forEach(function (f) { out[f] = 0; }); return out; }
+      return Promise.all(rest.map(function (f) {
+        return fetchUpdated(f).then(function (t) { out[f] = t; });
+      })).then(function () { return out; });
+    });
+  }
+
+  /* 最後一次成功掃到的遊戲清單。API 額度用完時拿它頂著，
+     總比讓整個 Demogame 區變空白好。 */
+  var LIST_KEY = "omniplay-games";
+  var LIST_TTL = 24 * 60 * 60 * 1000;
+  function saveGameList(games) {
+    try { localStorage.setItem(LIST_KEY, JSON.stringify({ at: Date.now(), games: games })); }
+    catch (e) {}
+  }
+  function cachedGameList() {
+    try {
+      var c = JSON.parse(localStorage.getItem(LIST_KEY) || "{}");
+      if (!c.games || !c.games.length) return null;
+      if (Date.now() - (c.at || 0) > LIST_TTL) return null;
+      return c.games;
+    } catch (e) { return null; }
   }
 
   /* ---------- Demogame ---------- */
+  /* 直接用 <branch>:<path> 形式的 tree ref 一次取回整棵 Slots 子樹（1 次 API）。
+     萬一這個寫法失效，退回原本「先查 Project 目錄拿 sha、再取 tree」的兩次呼叫。 */
+  function fetchSlotsTree() {
+    var ref = encodeURIComponent("main:" + SLOTS_PATH);
+    return fetchJson(API_BASE + "/git/trees/" + ref + "?recursive=1")
+      .catch(function (e) {
+        if (e && e.rateLimited) throw e;
+        return fetchJson(API_BASE + "/contents/Project").then(function (proj) {
+          var slots = proj.filter(function (i) { return i.type === "dir" && i.name === "Slots"; })[0];
+          if (!slots) throw new Error("找不到 Slots 目錄");
+          return fetchJson(API_BASE + "/git/trees/" + slots.sha + "?recursive=1");
+        });
+      });
+  }
+
   function loadGames() {
-    return fetchJson(API_BASE + "/contents/Project")
-      .then(function (proj) {
-        var slots = proj.filter(function (i) { return i.type === "dir" && i.name === "Slots"; })[0];
-        if (!slots) throw new Error("找不到 Slots 目錄");
-        return fetchJson(API_BASE + "/git/trees/" + slots.sha + "?recursive=1");
-      })
+    return fetchSlotsTree()
       .then(function (tree) {
         var nodes = tree.tree || [];
         if (tree.truncated) notes.push("GitHub 目錄樹過大被截斷，Demogame 清單可能不完整");
@@ -194,37 +257,63 @@ window.Omni = (function () {
           if (m) hasCover[m[1]] = true;
         });
 
-        return Promise.all(folders.map(function (folder) {
-          var info = parseFolderName(folder);
-          var gameBase = PAGES_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder);
-          return Promise.all([
-            fetchPlay(gameBase),
-            hasManifest[folder] ? fetchVersion(gameBase) : Promise.resolve(""),
-            fetchUpdated(folder)
-          ]).then(function (r) {
+        // 先把免費的 Pages 檔案平行抓完（game_rule.md、version_manifest.js），
+        // 再單獨處理要吃 API 額度的更新時間
+        return Promise.all([
+          Promise.all(folders.map(function (folder) {
+            var gameBase = PAGES_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder);
+            return Promise.all([
+              fetchPlay(gameBase),
+              hasManifest[folder] ? fetchVersion(gameBase) : Promise.resolve("")
+            ]);
+          })),
+          fetchDates(folders)
+        ]).then(function (res) {
+          var statics = res[0], dates = res[1];
+          return folders.map(function (folder, i) {
+            var info = parseFolderName(folder);
+            var gameBase = PAGES_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder);
+            var rule = statics[i][0], version = statics[i][1], ts = dates[folder] || 0;
             return {
               folder: folder, id: info.id, name: info.name,
-              play: r[0].play, version: r[1], updated: r[2],
+              play: rule.play, version: version,
+              // 有 commit 時間就用它；額度用完時退回 game_rule.md 的撰寫日期
+              updated: ts || rule.docDate || 0,
+              exactDate: !!ts,
               hasDemo: !!hasDemo[folder],
               playUrl: gameBase + "/",
               coverUrl: hasCover[info.id]
                 ? COVER_BASE + "/" + encodeURIComponent(info.id) + ".png" : "",
-              ruleUrl: r[0].hasRule
+              ruleUrl: rule.hasRule
                 ? BLOB_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder) + "/game_rule.md"
                 : ""
             };
           });
-        }));
+        });
       })
       .then(function (games) {
         // 最新更新的放前面；沒有時間的沉到最後
         games.sort(function (a, b) {
           return (b.updated || 0) - (a.updated || 0) || a.id.localeCompare(b.id);
         });
+        if (games.some(function (g) { return !g.exactDate; }) && rateLimited) {
+          notes.push("API 額度用完，Demogame 的排序改用 game_rule.md 的撰寫日期");
+        }
+        saveGameList(games);
         return games;
       })
       .catch(function (err) {
-        notes.push("Demogame 掃描失敗（" + err.message + "）");
+        // 目錄都拿不到時，退回上次成功掃到的清單，不要整區變空白
+        var stale = cachedGameList();
+        if (stale) {
+          notes.push(err.rateLimited
+            ? "GitHub API 額度用完（每小時 60 次、同一 IP 共用），Demogame 顯示的是上次的清單"
+            : "Demogame 掃描失敗（" + err.message + "），顯示上次的清單");
+          return stale;
+        }
+        notes.push(err.rateLimited
+          ? "GitHub API 額度用完（每小時 60 次、同一 IP 共用），稍後重新整理即可"
+          : "Demogame 掃描失敗（" + err.message + "）");
         return [];
       });
   }
@@ -290,7 +379,9 @@ window.Omni = (function () {
         });
       })
       .catch(function (err) {
-        notes.push("分析報告掃描失敗（" + err.message + "）");
+        notes.push(err.rateLimited
+          ? "GitHub API 額度用完（每小時 60 次、同一 IP 共用），分析報告稍後重新整理即可"
+          : "分析報告掃描失敗（" + err.message + "）");
         return [];
       });
   }
