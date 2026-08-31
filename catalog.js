@@ -21,7 +21,8 @@
                    沒日期的維持在這個檔案裡的順序
      tags    選填  字串陣列（目前卡片上不顯示，但可被搜尋）
 
-   首頁每區只顯示前 3 筆，所以放在最前面的會是預設看到的那幾筆。
+   首頁每區只顯示前 4 筆，所以放在最前面的會是預設看到的那幾筆。
+   要看全部請點該區的「完整頁 →」。
 
    demo / analysis 也可以手動加，用來掛「不在那兩個位置」的網頁；
    網址若與自動掃描到的相同會自動去重（以手動的為準）。
@@ -36,7 +37,28 @@ window.CATALOG = [
     date: "2026-08-28"
   },
 
-  /* ---- 常用連結（順序即顯示順序，首頁只顯示前 3 個） ---- */
+  /* ---- 常用連結（順序即顯示順序，首頁只顯示前 4 個） ----
+     TODO: 6ek7 要放在這一區的第一個，等網址補上後插在「線上遊戲資源」前面：
+     { title: "6ek7", url: "https://…", cat: "links", game: "…", desc: "…" },
+  */
+  {
+    title: "線上遊戲資源",
+    url: "https://docs.google.com/spreadsheets/d/1DbJQoP7Wz7lEs2Osxj96YUGMs8lyrXZbwfnLEivAhKE/edit?gid=0#gid=0",
+    cat: "links", game: "Sheets",
+    desc: "已上線遊戲的資源清單"
+  },
+  {
+    title: "雲端資料夾 — 專案",
+    url: "https://drive.google.com/drive/u/0/folders/16zZoKJYt_Hz1srm1ZHNgSKucDp6LE4vg",
+    cat: "links", game: "Drive",
+    desc: "各專案的雲端資料"
+  },
+  {
+    title: "雲端資料夾 — 送驗",
+    url: "https://drive.google.com/drive/folders/0ABrNenAbZUCkUk9PVA",
+    cat: "links", game: "Drive",
+    desc: "送驗文件與報告"
+  },
   {
     title: "測試環境 — Dev",
     url: "https://ghdev.jigaming.com.tw/login",
@@ -80,18 +102,6 @@ window.CATALOG = [
     desc: "OP 相關文件"
   },
   {
-    title: "雲端資料夾 — 專案",
-    url: "https://drive.google.com/drive/u/0/folders/16zZoKJYt_Hz1srm1ZHNgSKucDp6LE4vg",
-    cat: "links", game: "Drive",
-    desc: "各專案的雲端資料"
-  },
-  {
-    title: "雲端資料夾 — 送驗",
-    url: "https://drive.google.com/drive/folders/0ABrNenAbZUCkUk9PVA",
-    cat: "links", game: "Drive",
-    desc: "送驗文件與報告"
-  },
-  {
     title: "雲端資料夾 — 規格書",
     url: "https://drive.google.com/drive/folders/1vWFwLBNDmsd5-1wZWqLGIsNwqGasAqT1",
     cat: "links", game: "Drive",
@@ -102,12 +112,6 @@ window.CATALOG = [
     url: "https://docs.google.com/spreadsheets/d/1rTGeitrRYsX0qnCXfEDGYLvAYGjcEwavRm5h3MOmigg/edit?gid=0#gid=0",
     cat: "links", game: "Sheets",
     desc: "數學相關的權限對照表"
-  },
-  {
-    title: "線上遊戲資源",
-    url: "https://docs.google.com/spreadsheets/d/1DbJQoP7Wz7lEs2Osxj96YUGMs8lyrXZbwfnLEivAhKE/edit?gid=0#gid=0",
-    cat: "links", game: "Sheets",
-    desc: "已上線遊戲的資源清單"
   },
   {
     title: "測試環境 — Club",
