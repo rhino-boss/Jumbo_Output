@@ -92,8 +92,14 @@
     return String(b.date || "").localeCompare(String(a.date || "")) ||
            String(a.title || "").localeCompare(String(b.title || ""));
   }
+  // 有日期的排前面（新到舊）；沒日期的維持 catalog.js 裡的順序（sort 是穩定的）
   function manualOf(cat) {
-    return manual.filter(function (i) { return i.cat === cat; }).sort(byDateDesc);
+    return manual.filter(function (i) { return i.cat === cat; }).sort(function (a, b) {
+      if (!a.date && !b.date) return 0;
+      if (!a.date) return 1;
+      if (!b.date) return -1;
+      return String(b.date).localeCompare(String(a.date));
+    });
   }
   function matches(o, q) { return !q || Omni.haystackOf(o).indexOf(q) !== -1; }
 
