@@ -23,7 +23,7 @@ window.CATALOG = [
     title: "老手救援 C 版 機制說明",
     url: "https://rhino-boss.github.io/Jumbo/Project/System/機制說明_老手救援C版.html",
     cat: "report",
-    desc: "雙池救援機制：判定條件、20×／50× 獎項、遊戲歷程",
+    desc: "雙池救援機制：判定條件、20× 救援獎項、遊戲歷程",
     date: "2026-08-28"
   }
 ];
