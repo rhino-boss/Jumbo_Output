@@ -114,10 +114,15 @@ window.CATALOG = [
 
 ## 視覺風格
 
-沿用 Cworld 的設計語言，底色改為淺藍：頁面底 `#eef2f9`、白卡、
+配色與 Cworld 一致：暖白底 `#f7f7f5`、白卡、邊框 `#e8e8e4`、16px 圓角、
 `0 2px 12px rgba(0,0,0,.07)` 陰影（hover 換 `0 8px 32px rgba(0,0,0,.13)` 並上浮 3px）、
-Helvetica Neue / PingFang TC 字族、海軍藍漸層 hero（`#2a3d5c → #3e6394`）。
-固定亮色，沒有亮／深自動切換。
+Helvetica Neue / PingFang TC 字族、海軍藍 `#2a3d5c` 導覽條與 `#2a3d5c → #3e6394` 漸層 hero、
+遊戲卡的兩顆按鈕沿用 `#1a1a1a`／`#d32020`。固定亮色，沒有亮／深自動切換。
+
+導覽條與 Cworld 一樣只出現在子頁（`games.html` 顯示「Omniplay / Demogame」麵包屑），
+首頁沒有 — 否則會和 hero 的標題重複。
+
+分類色（藍／紅／琥珀／綠）是這個站自己的一組，Cworld 沒有對應的分類色可以對齊。
 
 一般卡片（分析報告等）刻意做小：欄寬下限 268px、內距 16px、圓角 12px，
 只有「分類標籤／標題／說明」三行，不顯示日期與標籤列 —

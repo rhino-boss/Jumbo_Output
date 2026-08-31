@@ -3,11 +3,12 @@
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* 配色與 Cworld 一致：暖白底、白卡、#e8e8e4 邊框 */
 :root {
-  --bg: #eef2f9;
+  --bg: #f7f7f5;
   --surface: #ffffff;
-  --surface-2: #e3eaf5;
-  --border: #dbe2ee;
+  --surface-2: #efefec;      /* hover／標籤底，比底色再深一階 */
+  --border: #e8e8e4;
   --text-primary: #1a1a1a;
   --text-secondary: #6b6b6b;
   --text-tag: #4a4a4a;
@@ -36,6 +37,16 @@ body {
   display: flex; flex-direction: column;
 }
 
+/* ── 導覽條（與 Cworld 相同：#2a3d5c、52px、麵包屑） ── */
+nav {
+  background: var(--accent-dark); padding: 0 48px; height: 52px;
+  display: flex; align-items: center; gap: 8px;
+}
+nav a { color: rgba(255,255,255,.65); text-decoration: none; font-size: .85rem; }
+nav a:hover { color: #fff; }
+nav .sep { color: rgba(255,255,255,.3); font-size: .85rem; }
+nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
+
 /* ── Hero ── */
 .hero {
   background: linear-gradient(135deg, var(--accent-dark), var(--accent-mid));
@@ -50,9 +61,6 @@ body {
 .hero h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; }
 .hero h1 a { color: inherit; text-decoration: none; }
 .hero p { margin-top: 6px; font-size: 0.9rem; opacity: .7; }
-.hero .crumb { margin-top: 6px; font-size: .82rem; opacity: .75; }
-.hero .crumb a { color: #fff; text-decoration: none; opacity: .8; }
-.hero .crumb a:hover { opacity: 1; text-decoration: underline; }
 
 .container { flex: 1; max-width: 1360px; width: 100%; margin: 0 auto; padding: 30px 48px 72px; }
 
@@ -241,6 +249,7 @@ footer {
   .rail > * { flex: 0 0 calc((100% - 14px) / 2); }
 }
 @media (max-width: 640px) {
+  nav { padding: 0 24px; }
   .hero { padding: 28px 24px 24px; }
   .hero h1 { font-size: 1.45rem; }
   .container { padding: 22px 24px 60px; }
