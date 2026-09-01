@@ -4,7 +4,7 @@
    首頁分四區，其中兩區是自動掃描 rhino-boss/Jumbo、不用寫在這裡：
 
      Demogame  ← Project/Slots/<代號_名稱>/index.html
-     分析報告   ← Project/競品分析/遊戲數據_*.html
+     競品分析   ← Project/競品分析/遊戲數據_*.html
 
    另兩區沒有自動掃描，項目全部寫在下面：
 

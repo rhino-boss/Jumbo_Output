@@ -3,7 +3,7 @@
 
    所有內容都從 rhino-boss/Jumbo 掃出來：
      Demogame  ← Project/Slots/<代號_名稱>/index.html
-     分析報告   ← Project/競品分析/遊戲數據_*.html
+     競品分析   ← Project/競品分析/遊戲數據_*.html
      其他報告／常用連結 ← catalog.js（手動）
 
    GitHub API 用量（未登入限每小時 60 次，且依對外 IP 計算）：
@@ -27,7 +27,7 @@ window.Omni = (function () {
   var ANALYSIS_API = API_BASE + "/contents/Project/" + encodeURIComponent(ANALYSIS_DIR);
   var ANALYSIS_BASE = PAGES_BASE + "/Project/" + encodeURIComponent(ANALYSIS_DIR);
 
-  var CAT_LABEL = { demo: "Demogame", analysis: "分析報告", report: "其他報告", links: "常用連結" };
+  var CAT_LABEL = { demo: "Demogame", analysis: "競品分析", report: "其他報告", links: "常用連結" };
 
   var notes = [];
 
@@ -317,7 +317,7 @@ window.Omni = (function () {
       });
   }
 
-  /* ---------- 分析報告：解析 Project/競品分析/README.md 的表格 ---------- */
+  /* ---------- 競品分析：解析 Project/競品分析/README.md 的表格 ---------- */
   function parseAnalysisReadme(text) {
     var out = { byFile: {}, rtp: {}, official: {} };
     var lines = text.split(/\r?\n/);
@@ -379,8 +379,8 @@ window.Omni = (function () {
       })
       .catch(function (err) {
         notes.push(err.rateLimited
-          ? "GitHub API 額度用完（每小時 60 次、同一 IP 共用），分析報告稍後重新整理即可"
-          : "分析報告掃描失敗（" + err.message + "）");
+          ? "GitHub API 額度用完（每小時 60 次、同一 IP 共用），競品分析稍後重新整理即可"
+          : "競品分析掃描失敗（" + err.message + "）");
         return [];
       });
   }
@@ -427,7 +427,7 @@ window.Omni = (function () {
       '</div>' +
       '<h2>' + esc(it.title) + '</h2>' +
       (it.desc ? '<p>' + esc(it.desc) + '</p>' : '') +
-      // 報告類才有日期（分析報告取 README 的「報告日期」、其他報告取 catalog.js 的 date）
+      // 報告類才有日期（競品分析取 README 的「報告日期」、其他報告取 catalog.js 的 date）
       (it.date ? '<div class="card-date">更新 ' + esc(it.date) + '</div>' : '') +
     '</a>';
   }

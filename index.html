@@ -36,7 +36,7 @@
     </div>
     <div class="stat-card analysis">
       <div class="stat-num"><span id="s-analysis">0</span><span class="unit">份</span></div>
-      <div class="stat-label">分析報告</div>
+      <div class="stat-label">競品分析</div>
     </div>
     <div class="stat-card report">
       <div class="stat-num"><span id="s-report">0</span><span class="unit">份</span></div>
@@ -64,11 +64,11 @@
     <div id="demo-body"></div>
   </div>
 
-  <!-- ── 分析報告 ── -->
+  <!-- ── 競品分析 ── -->
   <div class="section analysis" id="sec-analysis">
     <div class="sec-head">
       <span class="cdot"></span>
-      <h2>分析報告</h2>
+      <h2>競品分析</h2>
       <span class="n" id="n-analysis"></span>
       <div class="sec-actions">
         <a class="sec-link" href="all.html?cat=analysis">完整頁 →</a>
@@ -152,7 +152,7 @@
     txt.textContent = busy
       ? "正在載入…"
       : "共 " + (games.length + analysis.length + reports.length + links.length) +
-        " 筆：Demogame " + games.length + " 款、分析報告 " + analysis.length +
+        " 筆：Demogame " + games.length + " 款、競品分析 " + analysis.length +
         " 份、其他報告 " + reports.length + " 份、常用連結 " + links.length + " 個";
 
     var box = document.getElementById("notes");
@@ -193,7 +193,7 @@
     }).join("");
   }
 
-  /* ---------- 卡片區（分析報告、其他報告） ---------- */
+  /* ---------- 卡片區（競品分析、其他報告） ---------- */
   function renderCards(id, items, q, unit, emptyMsg) {
     var body = document.getElementById(id + "-body");
     var list = items.filter(function (i) { return matches(i, q); });
@@ -221,7 +221,7 @@
     var q = qEl.value.trim().toLowerCase();
     renderTop();
     renderDemo(q);
-    renderCards("analysis", analysis.slice().sort(byDateDesc), q, "份", "掃不到任何分析報告。");
+    renderCards("analysis", analysis.slice().sort(byDateDesc), q, "份", "掃不到任何競品分析。");
     renderCards("report", manualOf("report"), q, "份",
       "還沒有其他報告 — 在 catalog.js 加入 cat: \"report\" 的項目。");
     renderLinks(q);
