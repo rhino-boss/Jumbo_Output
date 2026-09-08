@@ -304,20 +304,17 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
 
 /* ── 清單模式：一列一筆 ── */
 .rows { display: flex; flex-direction: column; gap: 8px; }
+/* 清單列不做分類色條 —— 完整頁一次只顯示一個分類，左邊那條色條沒有
+   區分作用，只是讓整排看起來很吵。分類已經由 hero／麵包屑表明。 */
 .row {
   display: flex; align-items: center; gap: 12px;
   padding: 11px 14px; border-radius: 10px;
   background: var(--surface); border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
   box-shadow: 0 1px 3px rgba(0,0,0,.05);
   text-decoration: none; color: inherit;
   transition: box-shadow .15s, transform .15s;
 }
 .row:hover { box-shadow: 0 6px 18px rgba(0,0,0,.10); transform: translateY(-1px); }
-.row.demo { --accent: var(--cat-demo); }
-.row.analysis { --accent: var(--cat-analysis); }
-.row.report { --accent: var(--cat-report); }
-.row.links { --accent: var(--cat-links); }
 .row .r-tag {
   flex: none; font-size: .68rem; font-weight: 700; color: var(--text-secondary);
   background: var(--bg); border: 1px solid var(--border); border-radius: 99px; padding: 2px 8px;

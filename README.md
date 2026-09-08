@@ -246,9 +246,9 @@ GitHub Pages 給每個檔案 `Cache-Control: max-age=600`，而 `assets/*` 的
 所以 `index.html` 與 `all.html` 引用時都帶版號：
 
 ```html
-<link rel="stylesheet" href="assets/style.css?v=20260908a">
-<script src="catalog.js?v=20260908a"></script>
-<script src="assets/app.js?v=20260908a"></script>
+<link rel="stylesheet" href="assets/style.css?v=20260908b">
+<script src="catalog.js?v=20260908b"></script>
+<script src="assets/app.js?v=20260908b"></script>
 ```
 
 **動到 `assets/style.css`、`assets/app.js`、`catalog.js` 時，
