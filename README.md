@@ -237,5 +237,23 @@ favicon 是深藍 `#1b3a6b` 底白 J，字形幾何沿用 Cworld 那顆紅底 C
 
 推到 `main` 即自動部署（Settings → Pages：`Deploy from a branch`、`main` / `/ (root)`）。
 
+### 改 assets 記得改版號
+
+GitHub Pages 給每個檔案 `Cache-Control: max-age=600`，而 `assets/*` 的
+10 分鐘快取跟 HTML 各走各的 —— 只按重新整理常常拿到新 HTML 配舊 CSS/JS，
+看起來就像「改了沒生效」，甚至可能出現新 HTML 搭舊 JS 的壞組合。
+
+所以 `index.html` 與 `all.html` 引用時都帶版號：
+
+```html
+<link rel="stylesheet" href="assets/style.css?v=20260908a">
+<script src="catalog.js?v=20260908a"></script>
+<script src="assets/app.js?v=20260908a"></script>
+```
+
+**動到 `assets/style.css`、`assets/app.js`、`catalog.js` 時，
+把兩個 HTML 裡的 `?v=` 一起改掉**（慣例：`YYYYMMDD` ＋ 當天流水字母）。
+帶新版號的網址從沒被快取過，瀏覽器一定會重新抓。
+
 > 這個倉庫是公開的，但內容全靠外部連結，倉庫裡只有索引、共用 CSS/JS 與 favicon。
 > 被連過去的檔案本來就在公開的 `rhino-boss/Jumbo` Pages 上。
