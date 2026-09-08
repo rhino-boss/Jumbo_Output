@@ -6,12 +6,13 @@
      競品分析   ← 競品分析/遊戲數據_*.html
      其他報告／常用連結 ← catalog.js（手動）
 
-   GitHub API 用量（未登入限每小時 60 次，且依對外 IP 計算）：
+   GitHub API 只用 2 次（未登入限每小時 60 次，且依對外 IP 計算，
+   辦公室共用一個 IP 時是全辦公室一起分）：
      /git/trees/main:Slots?recursive=1   1 次  一次取回整棵 Slots 子樹
      /contents/競品分析                   1 次  列出競品報告
-     /commits?path=<遊戲資料夾>                  每款 1 次，結果快取 24 小時
-   game_rule.md、version_manifest.js、競品分析的 README.md 都是同源的
-   Pages 靜態檔，不吃 API 額度。額度用完時的降級行為見 loadGames 的 catch。
+   其餘（game_rule.md、修改紀錄.md、version_manifest.js、
+   競品分析的 README.md）都是同源的 Pages 靜態檔，不吃額度。
+   額度用完時的降級行為見 loadGames 的 catch。
    ============================================================ */
 window.Omni = (function () {
   /* ── 來源路徑：Jumbo repo 若又改結構，只要改這三行 ──
@@ -116,8 +117,8 @@ window.Omni = (function () {
   }
 
   /* game_rule.md 的表格列：| 遊戲類型 | Video Slot - 1,024 Ways / Cascade |
-     另外抓「> 撰寫日期：2026-08-11」當備用排序依據 —
-     API 額度用完時仍有個合理的時間可以排序。 */
+     另外抓「> 撰寫日期：2026-08-11」——
+     沒有 修改紀錄.md 的遊戲就靠它當文件日期（見 fetchLogDate 上方說明）。 */
   function fetchPlay(gameBase) {
     return fetchText(gameBase + "/game_rule.md").then(function (text) {
       if (!text) return { play: "", hasRule: false, docDate: 0 };
@@ -156,55 +157,27 @@ window.Omni = (function () {
     });
   }
 
-  /* 最後更新時間＝該遊戲資料夾的最後一筆 commit 時間。
-     每款 1 次 API，結果快取 6 小時，避免每次進頁面都吃掉額度。 */
-  var CACHE_KEY = "omniplay-game-dates";
-  var CACHE_TTL = 24 * 60 * 60 * 1000;   // 拉長到 24 小時，少吃額度
-  var dateCache = (function () {
-    try {
-      var c = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
-      return (Date.now() - (c.at || 0) < CACHE_TTL) ? (c.dates || {}) : {};
-    } catch (e) { return {}; }
-  })();
-  function saveDateCache() {
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), dates: dateCache }));
-    } catch (e) { /* localStorage 不可用就算了 */ }
-  }
   var rateLimited = false;   // 一旦碰到額度上限就別再打，省下後續必然失敗的請求
 
-  function fetchUpdated(folder) {
-    if (folder in dateCache) return Promise.resolve(dateCache[folder]);
-    if (rateLimited) return Promise.resolve(0);
-    var path = SLOTS_PATH + "/" + folder;
-    return fetchJson(API_BASE + "/commits?path=" + encodeURIComponent(path) + "&per_page=1")
-      .then(function (arr) {
-        var ts = (arr && arr[0]) ? (Date.parse(arr[0].commit.committer.date) || 0) : 0;
-        dateCache[folder] = ts; saveDateCache();
-        return ts;
-      })
-      .catch(function (e) {
-        if (e && e.rateLimited) { rateLimited = true; return 0; }
-        dateCache[folder] = 0; saveDateCache();
-        return 0;
-      });
+  /* 文件日期＝這款遊戲的文件裡能找到的最新日期，取捨順序：
+       1. 修改紀錄.md 最上面的「## YYYY-MM-DD」（真正的最後更新，但不是每款都有）
+       2. game_rule.md 的「> 撰寫日期：YYYY-MM-DD」（每款都有，但只是初次撰寫日）
+     兩者都是同源的 Pages 靜態檔，不吃 API 額度 —— 原本改用
+     /commits?path=<資料夾> 拿 commit 時間雖然精準，但每款 1 次、
+     未登入額度每小時 60 次又依對外 IP 計算，全辦公室共用時很容易用完。 */
+  function parseLogDate(text) {
+    if (!text || /^\s*</.test(text)) return 0;      // 404 頁會是 HTML
+    var best = 0, re = /^##\s*(\d{4})-(\d{1,2})-(\d{1,2})/gm, m;
+    while ((m = re.exec(text))) {
+      var ts = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+      if (ts > best) best = ts;
+    }
+    return best;
   }
-
-  /* 一次取回所有遊戲的更新時間。
-     先探第一款確認額度還在，再平行抓其餘 —— 若一開始就打平行，
-     rateLimited 旗標會來不及生效，額度用完時會白打每一款。
-     全部命中快取時 fetchUpdated 立即回傳，不會多一趟延遲。 */
-  function fetchDates(folders) {
-    var out = {};
-    if (!folders.length) return Promise.resolve(out);
-    return fetchUpdated(folders[0]).then(function (ts) {
-      out[folders[0]] = ts;
-      var rest = folders.slice(1);
-      if (rateLimited) { rest.forEach(function (f) { out[f] = 0; }); return out; }
-      return Promise.all(rest.map(function (f) {
-        return fetchUpdated(f).then(function (t) { out[f] = t; });
-      })).then(function () { return out; });
-    });
+  function fetchLogDate(gameBase, hasLog) {
+    if (!hasLog) return Promise.resolve(0);
+    return fetchText(gameBase + "/" + encodeURIComponent("修改紀錄") + ".md")
+      .then(parseLogDate);
   }
 
   /* 最後一次成功掃到的遊戲清單。API 額度用完時拿它頂著，
@@ -256,39 +229,37 @@ window.Omni = (function () {
 
         /* 整棵樹已經在手上，所以 demo／版本檔／封面圖在不在都直接從樹判斷，
            不必先打再看 404 — 省下多餘請求，也不會在 console 留紅字 */
-        var hasDemo = {}, hasManifest = {}, hasCover = {};
+        var hasDemo = {}, hasManifest = {}, hasCover = {}, hasLog = {};
         nodes.forEach(function (n) {
           var m = n.path.match(/^([A-Za-z0-9]+_[^/]+)\/index\.html$/);
           if (m) { hasDemo[m[1]] = true; return; }
           m = n.path.match(/^([A-Za-z0-9]+_[^/]+)\/Versions\/version_manifest\.js$/);
           if (m) { hasManifest[m[1]] = true; return; }
+          m = n.path.match(/^([A-Za-z0-9]+_[^/]+)\/修改紀錄\.md$/);
+          if (m) { hasLog[m[1]] = true; return; }
           m = n.path.match(/遊戲資源\/([A-Za-z0-9]+)\.png$/);
           if (m) hasCover[m[1]] = true;
         });
 
-        // 先把免費的 Pages 檔案平行抓完（game_rule.md、version_manifest.js），
-        // 再單獨處理要吃 API 額度的更新時間
-        return Promise.all([
-          Promise.all(folders.map(function (folder) {
-            var gameBase = PAGES_BASE + "/" + encPath(SLOTS_PATH) + "/" + encodeURIComponent(folder);
-            return Promise.all([
-              fetchPlay(gameBase),
-              hasManifest[folder] ? fetchVersion(gameBase) : Promise.resolve("")
-            ]);
-          })),
-          fetchDates(folders)
-        ]).then(function (res) {
-          var statics = res[0], dates = res[1];
+        // 全部都是同源的 Pages 靜態檔，可以一次平行抓完，不吃 API 額度
+        return Promise.all(folders.map(function (folder) {
+          var gameBase = PAGES_BASE + "/" + encPath(SLOTS_PATH) + "/" + encodeURIComponent(folder);
+          return Promise.all([
+            fetchPlay(gameBase),
+            hasManifest[folder] ? fetchVersion(gameBase) : Promise.resolve(""),
+            fetchLogDate(gameBase, hasLog[folder])
+          ]);
+        })).then(function (statics) {
           return folders.map(function (folder, i) {
             var info = parseFolderName(folder);
             var gameBase = PAGES_BASE + "/" + encPath(SLOTS_PATH) + "/" + encodeURIComponent(folder);
-            var rule = statics[i][0], version = statics[i][1], ts = dates[folder] || 0;
+            var rule = statics[i][0], version = statics[i][1], logDate = statics[i][2];
             return {
               folder: folder, id: info.id, name: info.name,
               play: rule.play, version: version,
-              // 有 commit 時間就用它；額度用完時退回 game_rule.md 的撰寫日期
-              updated: ts || rule.docDate || 0,
-              exactDate: !!ts,
+              // 修改紀錄的最新日期優先，沒有就退回 game_rule.md 的撰寫日期
+              updated: logDate || rule.docDate || 0,
+              dateFrom: logDate ? "修改紀錄" : (rule.docDate ? "撰寫日期" : ""),
               hasDemo: !!hasDemo[folder],
               playUrl: gameBase + "/",
               coverUrl: hasCover[info.id]
@@ -301,12 +272,14 @@ window.Omni = (function () {
         });
       })
       .then(function (games) {
-        // 最新更新的放前面；沒有時間的沉到最後
+        // 文件日期最新的放前面；沒有日期的沉到最後
         games.sort(function (a, b) {
           return (b.updated || 0) - (a.updated || 0) || a.id.localeCompare(b.id);
         });
-        if (games.some(function (g) { return !g.exactDate; }) && rateLimited) {
-          notes.push("API 額度用完，Demogame 的排序改用 game_rule.md 的撰寫日期");
+        var undated = games.filter(function (g) { return !g.updated; });
+        if (undated.length) {
+          notes.push("這幾款的文件裡找不到日期，排在最後：" +
+                     undated.map(function (g) { return g.id; }).join("、"));
         }
         saveGameList(games);
         return games;

@@ -182,7 +182,7 @@
     if (loading.demo && !games.length) { body.className = ""; body.innerHTML = emptyBox("正在載入 Demogame…"); return; }
     if (!list.length) { body.className = ""; body.innerHTML = emptyBox(q ? "沒有符合的遊戲。" : "掃不到任何遊戲。"); return; }
 
-    // NEW 緞帶：更新時間最新的前 3 款（不受顯示上限影響）
+    // NEW 緞帶：文件日期最新的前 3 款（不受顯示上限影響）
     var newest = {};
     list.slice(0, 3).forEach(function (g) { if (g.updated) newest[g.folder] = true; });
 
