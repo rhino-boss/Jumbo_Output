@@ -152,18 +152,6 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
   border-radius: 99px; padding: 2px 8px; flex: none;
 }
 
-/* ── 常用連結的分群標籤配色 ──
-   以 data-tag 對應，值來自 catalog.js 的 game 欄。
-   沒對應到的標籤會落到上面 .lk-tag / .r-tag 的預設灰，不會壞掉。
-   寬度統一 46px，讓各列的名稱對齊成一直排。            */
-.lk-tag, .r-tag { min-width: 46px; text-align: center; }
-.lk-tag[data-tag="Sheets"], .r-tag[data-tag="Sheets"] { color: #1e7f4f; background: #e8f4ee; border-color: #cfe6da; }
-.lk-tag[data-tag="Drive"],  .r-tag[data-tag="Drive"]  { color: #9a6c17; background: #fbf2e2; border-color: #ecdcb9; }
-.lk-tag[data-tag="測試"],   .r-tag[data-tag="測試"]   { color: #6b4fa8; background: #efeaf8; border-color: #ddd2f0; }
-.lk-tag[data-tag="HR"],     .r-tag[data-tag="HR"]     { color: #17706e; background: #e6f2f2; border-color: #c8e2e1; }
-.lk-tag[data-tag="JIRA"],   .r-tag[data-tag="JIRA"]   { color: #2f5f9e; background: #e8f0fb; border-color: #cddef4; }
-.lk-tag[data-tag="Notion"], .r-tag[data-tag="Notion"] { color: #3f3f46; background: #eeeef1; border-color: #dcdce1; }
-.lk-tag[data-tag="其他"],   .r-tag[data-tag="其他"]   { color: #6b6b6b; background: #f1f1ee; border-color: #e0e0da; }
 .link-card .lk-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .link-card .arrow { margin-left: auto; color: var(--text-secondary); flex: none; }
 .sec-btn {
@@ -375,3 +363,21 @@ footer {
   .rail > * { flex: 0 0 86%; }
   .sec-actions { width: 100%; margin-left: 0; }
 }
+
+/* ══ 常用連結的分群標籤配色 ══
+   放在檔案最後、且用 .link-card / .row 前綴，是為了勝過前面
+   `.link-card .lk-tag`／`.row .r-tag` 的預設灰 ——
+   `.r-tag[data-tag=…]` 與 `.row .r-tag` 特異性同分（各為一 class＋一屬性
+   對兩 class），同分時由後者勝，顏色會被蓋掉。加上前綴後是三段勝兩段。
+
+   data-tag 的值來自 catalog.js 的 game 欄。填了沒定義顏色的新標籤會落到
+   預設灰，不會壞掉；要加顏色就在這裡補一條。                         */
+.lk-tag, .r-tag { min-width: 46px; text-align: center; }
+
+.link-card .lk-tag[data-tag="Sheets"], .row .r-tag[data-tag="Sheets"] { color: #1e7f4f; background: #e8f4ee; border-color: #cfe6da; }
+.link-card .lk-tag[data-tag="Drive"],  .row .r-tag[data-tag="Drive"]  { color: #9a6c17; background: #fbf2e2; border-color: #ecdcb9; }
+.link-card .lk-tag[data-tag="測試"],   .row .r-tag[data-tag="測試"]   { color: #6b4fa8; background: #efeaf8; border-color: #ddd2f0; }
+.link-card .lk-tag[data-tag="HR"],     .row .r-tag[data-tag="HR"]     { color: #17706e; background: #e6f2f2; border-color: #c8e2e1; }
+.link-card .lk-tag[data-tag="JIRA"],   .row .r-tag[data-tag="JIRA"]   { color: #2f5f9e; background: #e8f0fb; border-color: #cddef4; }
+.link-card .lk-tag[data-tag="Notion"], .row .r-tag[data-tag="Notion"] { color: #3f3f46; background: #eeeef1; border-color: #dcdce1; }
+.link-card .lk-tag[data-tag="其他"],   .row .r-tag[data-tag="其他"]   { color: #6b6b6b; background: #f1f1ee; border-color: #e0e0da; }
