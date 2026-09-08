@@ -3,8 +3,8 @@
    ------------------------------------------------------------
    首頁分四區，其中兩區是自動掃描 rhino-boss/Jumbo、不用寫在這裡：
 
-     Demogame  ← Project/Slots/<代號_名稱>/index.html
-     競品分析   ← Project/競品分析/遊戲數據_*.html
+     Demogame  ← Slots/<代號_名稱>/index.html
+     競品分析   ← 競品分析/遊戲數據_*.html
 
    另兩區沒有自動掃描，項目全部寫在下面：
 
@@ -31,7 +31,7 @@ window.CATALOG = [
   /* ---- 其他報告 ---- */
   {
     title: "老手救援 C 版 機制說明",
-    url: "https://rhino-boss.github.io/Jumbo/Project/System/機制說明_老手救援C版.html",
+    url: "https://rhino-boss.github.io/Jumbo/System/機制說明_老手救援C版.html",
     cat: "report",
     desc: "雙池救援機制：判定條件、50×／20× 救援獎項、遊戲歷程",
     date: "2026-08-28"

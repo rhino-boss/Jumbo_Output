@@ -2,30 +2,37 @@
    Omniplay — 共用資料載入與卡片渲染（index.html 與 all.html）
 
    所有內容都從 rhino-boss/Jumbo 掃出來：
-     Demogame  ← Project/Slots/<代號_名稱>/index.html
-     競品分析   ← Project/競品分析/遊戲數據_*.html
+     Demogame  ← Slots/<代號_名稱>/index.html
+     競品分析   ← 競品分析/遊戲數據_*.html
      其他報告／常用連結 ← catalog.js（手動）
 
    GitHub API 用量（未登入限每小時 60 次，且依對外 IP 計算）：
-     /git/trees/main:Project/Slots?recursive=1  1 次  一次取回整棵 Slots 子樹
-     /contents/Project/競品分析                  1 次  列出競品報告
+     /git/trees/main:Slots?recursive=1   1 次  一次取回整棵 Slots 子樹
+     /contents/競品分析                   1 次  列出競品報告
      /commits?path=<遊戲資料夾>                  每款 1 次，結果快取 24 小時
    game_rule.md、version_manifest.js、競品分析的 README.md 都是同源的
    Pages 靜態檔，不吃 API 額度。額度用完時的降級行為見 loadGames 的 catch。
    ============================================================ */
 window.Omni = (function () {
+  /* ── 來源路徑：Jumbo repo 若又改結構，只要改這三行 ──
+     2026-09-08：repo 拿掉了 Project/ 這一層，
+     Project/Slots → Slots、Project/競品分析 → 競品分析。 */
   var OWNER = "rhino-boss";
   var REPO = "Jumbo";
-  var SLOTS_PATH = "Project/Slots";
-  var ANALYSIS_DIR = "競品分析";
+  var SLOTS_PATH = "Slots";
+  var ANALYSIS_PATH = "競品分析";
 
   var PAGES_BASE = "https://" + OWNER + ".github.io/" + REPO;
   var API_BASE = "https://api.github.com/repos/" + OWNER + "/" + REPO;
   var BLOB_BASE = "https://github.com/" + OWNER + "/" + REPO + "/blob/main";
-  var COVER_BASE = PAGES_BASE + "/" + SLOTS_PATH + "/" +
-                   encodeURIComponent("其他") + "/" + encodeURIComponent("遊戲資源");
-  var ANALYSIS_API = API_BASE + "/contents/Project/" + encodeURIComponent(ANALYSIS_DIR);
-  var ANALYSIS_BASE = PAGES_BASE + "/Project/" + encodeURIComponent(ANALYSIS_DIR);
+
+  // 路徑要逐段編碼（中文段落必須 encode，斜線不能被 encode）
+  function encPath(p) {
+    return p.split("/").map(encodeURIComponent).join("/");
+  }
+  var COVER_BASE = PAGES_BASE + "/" + encPath(SLOTS_PATH + "/其他/遊戲資源");
+  var ANALYSIS_API = API_BASE + "/contents/" + encPath(ANALYSIS_PATH);
+  var ANALYSIS_BASE = PAGES_BASE + "/" + encPath(ANALYSIS_PATH);
 
   var CAT_LABEL = { demo: "Demogame", analysis: "競品分析", report: "其他報告", links: "常用連結" };
 
@@ -219,15 +226,18 @@ window.Omni = (function () {
 
   /* ---------- Demogame ---------- */
   /* 直接用 <branch>:<path> 形式的 tree ref 一次取回整棵 Slots 子樹（1 次 API）。
-     萬一這個寫法失效，退回原本「先查 Project 目錄拿 sha、再取 tree」的兩次呼叫。 */
+     萬一這個寫法失效，退回「列出 SLOTS_PATH 的上一層拿 sha、再取 tree」的兩次呼叫。 */
   function fetchSlotsTree() {
     var ref = encodeURIComponent("main:" + SLOTS_PATH);
     return fetchJson(API_BASE + "/git/trees/" + ref + "?recursive=1")
       .catch(function (e) {
         if (e && e.rateLimited) throw e;
-        return fetchJson(API_BASE + "/contents/Project").then(function (proj) {
-          var slots = proj.filter(function (i) { return i.type === "dir" && i.name === "Slots"; })[0];
-          if (!slots) throw new Error("找不到 Slots 目錄");
+        var seg = SLOTS_PATH.split("/");
+        var leaf = seg.pop();
+        var parent = seg.length ? "/" + encPath(seg.join("/")) : "";
+        return fetchJson(API_BASE + "/contents" + parent).then(function (list) {
+          var slots = list.filter(function (i) { return i.type === "dir" && i.name === leaf; })[0];
+          if (!slots) throw new Error("找不到 " + SLOTS_PATH + " 目錄");
           return fetchJson(API_BASE + "/git/trees/" + slots.sha + "?recursive=1");
         });
       });
@@ -260,7 +270,7 @@ window.Omni = (function () {
         // 再單獨處理要吃 API 額度的更新時間
         return Promise.all([
           Promise.all(folders.map(function (folder) {
-            var gameBase = PAGES_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder);
+            var gameBase = PAGES_BASE + "/" + encPath(SLOTS_PATH) + "/" + encodeURIComponent(folder);
             return Promise.all([
               fetchPlay(gameBase),
               hasManifest[folder] ? fetchVersion(gameBase) : Promise.resolve("")
@@ -271,7 +281,7 @@ window.Omni = (function () {
           var statics = res[0], dates = res[1];
           return folders.map(function (folder, i) {
             var info = parseFolderName(folder);
-            var gameBase = PAGES_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder);
+            var gameBase = PAGES_BASE + "/" + encPath(SLOTS_PATH) + "/" + encodeURIComponent(folder);
             var rule = statics[i][0], version = statics[i][1], ts = dates[folder] || 0;
             return {
               folder: folder, id: info.id, name: info.name,
@@ -284,7 +294,7 @@ window.Omni = (function () {
               coverUrl: hasCover[info.id]
                 ? COVER_BASE + "/" + encodeURIComponent(info.id) + ".png" : "",
               ruleUrl: rule.hasRule
-                ? BLOB_BASE + "/" + SLOTS_PATH + "/" + encodeURIComponent(folder) + "/game_rule.md"
+                ? BLOB_BASE + "/" + encPath(SLOTS_PATH) + "/" + encodeURIComponent(folder) + "/game_rule.md"
                 : ""
             };
           });
@@ -317,7 +327,7 @@ window.Omni = (function () {
       });
   }
 
-  /* ---------- 競品分析：解析 Project/競品分析/README.md 的表格 ---------- */
+  /* ---------- 競品分析：解析 競品分析/README.md 的表格 ---------- */
   function parseAnalysisReadme(text) {
     var out = { byFile: {}, rtp: {}, official: {} };
     var lines = text.split(/\r?\n/);

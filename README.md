@@ -2,6 +2,10 @@
 
 工作成果的網頁索引站。線上位址：<https://rhino-boss.github.io/Jumbo_Output/>
 
+> **來源路徑寫在 `assets/app.js` 最上面的 `SLOTS_PATH` / `ANALYSIS_PATH`。**
+> Jumbo repo 若又改結構，改那兩行就好 —— 2026-09-08 該 repo 拿掉了
+> `Project/` 這一層（`Project/Slots` → `Slots`），整站的內容一度全空。
+
 ## 檔案
 
 ```
@@ -18,8 +22,8 @@ assets/favicon.*   深藍底白 J
 
 | 區塊 | 色 | 來源 | 首頁呈現 | 上限 |
 |---|---|---|---|---|
-| Demogame | 藍 `#4a7fd0` | 自動掃描 `Project/Slots/<代號_名稱>/index.html` | 遊戲卡橫向軌道，一次看 3 張、可左右滑動 | 4 |
-| 競品分析 | 紅 `#d9534f` | 自動掃描 `Project/競品分析/遊戲數據_*.html` | 卡片格 | 4 |
+| Demogame | 藍 `#4a7fd0` | 自動掃描 `Slots/<代號_名稱>/index.html` | 遊戲卡橫向軌道，一次看 3 張、可左右滑動 | 4 |
+| 競品分析 | 紅 `#d9534f` | 自動掃描 `競品分析/遊戲數據_*.html` | 卡片格 | 4 |
 | 其他報告 | 琥珀 `#d9a13f` | `catalog.js` 的 `cat: "report"` | 卡片格 | 4 |
 | 常用連結 | 綠 `#6b8f71` | `catalog.js` 的 `cat: "links"` | 連結列 | 6 |
 
@@ -51,7 +55,7 @@ assets/favicon.*   深藍底白 J
 沿用 Cworld `studio/demogame` 的卡片：封面圖、NEW 緞帶、遊戲名＋版本號、
 遊戲類型、底部兩顆按鈕。
 
-- **封面** ← `Project/Slots/其他/遊戲資源/<代號>.png`；沒有就只放 🎰 佔位
+- **封面** ← `Slots/其他/遊戲資源/<代號>.png`；沒有就只放 🎰 佔位
   （目前 H027、H028 沒有封面圖）
 - **版本號** ← `Versions/version_manifest.js` 的 `current`；沒這個檔就留空
   （目前只有 H016、H027、H028 有）
@@ -105,7 +109,7 @@ NEW 緞帶固定掛在最新的 3 款（在完整頁切換排序時也不變）�
 
 ## 競品分析
 
-列出 `Project/競品分析/` 的 `遊戲數據_*.html`（`索引.html` 不收），
+列出 `競品分析/` 的 `遊戲數據_*.html`（`索引.html` 不收），
 再讀同資料夾的 **`README.md`** 解析兩張表格填卡片資訊：
 
 - 表一「| 遊戲 | 廠商 | 付費轉 | 報告日期 | … | 報告 |」→ 標題、廠商、付費轉、日期
@@ -113,7 +117,7 @@ NEW 緞帶固定掛在最新的 3 款（在完整頁切換排序時也不變）�
 
 官方 RTP 是 `⏳` 時自動省略該段。README 沒列到的檔案仍會上架，標題從檔名反推。
 
-> **維護 `Project/競品分析/README.md` 的表格，就等於維護這區的卡片內容。**
+> **維護 `競品分析/README.md` 的表格，就等於維護這區的卡片內容。**
 
 ## API 用量
 
@@ -121,8 +125,8 @@ NEW 緞帶固定掛在最新的 3 款（在完整頁切換排序時也不變）�
 辦公室共用一個 IP 時，是全辦公室一起分這 60 次。首頁冷啟動用 9 次：
 
 ```
-/git/trees/main:Project/Slots?recursive=1   1   一次取回整棵 Slots 子樹
-/contents/Project/競品分析                   1   列出競品報告
+/git/trees/main:Slots?recursive=1   1   一次取回整棵 Slots 子樹
+/contents/競品分析                   1   列出競品報告
 /commits?path=<遊戲資料夾>                   7   每款遊戲的最後更新時間
 ```
 
@@ -147,8 +151,8 @@ commit 時間快取在 `localStorage` 24 小時（key `omniplay-game-dates`）�
 
 ## 新增內容
 
-- **Demogame**：在 Jumbo 專案建 `Project/Slots/H0xx_名稱/index.html` 並 push
-- **競品分析**：把報告放進 `Project/競品分析/`、更新該資料夾的 `README.md` 表格
+- **Demogame**：在 Jumbo 專案建 `Slots/H0xx_名稱/index.html` 並 push
+- **競品分析**：把報告放進 `競品分析/`、更新該資料夾的 `README.md` 表格
 - **其他報告／常用連結**：編輯這裡的 `catalog.js`
 
 ```js
