@@ -151,6 +151,19 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
   background: var(--bg); border: 1px solid var(--border);
   border-radius: 99px; padding: 2px 8px; flex: none;
 }
+
+/* ── 常用連結的分群標籤配色 ──
+   以 data-tag 對應，值來自 catalog.js 的 game 欄。
+   沒對應到的標籤會落到上面 .lk-tag / .r-tag 的預設灰，不會壞掉。
+   寬度統一 46px，讓各列的名稱對齊成一直排。            */
+.lk-tag, .r-tag { min-width: 46px; text-align: center; }
+.lk-tag[data-tag="Sheets"], .r-tag[data-tag="Sheets"] { color: #1e7f4f; background: #e8f4ee; border-color: #cfe6da; }
+.lk-tag[data-tag="Drive"],  .r-tag[data-tag="Drive"]  { color: #9a6c17; background: #fbf2e2; border-color: #ecdcb9; }
+.lk-tag[data-tag="測試"],   .r-tag[data-tag="測試"]   { color: #6b4fa8; background: #efeaf8; border-color: #ddd2f0; }
+.lk-tag[data-tag="HR"],     .r-tag[data-tag="HR"]     { color: #17706e; background: #e6f2f2; border-color: #c8e2e1; }
+.lk-tag[data-tag="JIRA"],   .r-tag[data-tag="JIRA"]   { color: #2f5f9e; background: #e8f0fb; border-color: #cddef4; }
+.lk-tag[data-tag="Notion"], .r-tag[data-tag="Notion"] { color: #3f3f46; background: #eeeef1; border-color: #dcdce1; }
+.lk-tag[data-tag="其他"],   .r-tag[data-tag="其他"]   { color: #6b6b6b; background: #f1f1ee; border-color: #e0e0da; }
 .link-card .lk-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .link-card .arrow { margin-left: auto; color: var(--text-secondary); flex: none; }
 .sec-btn {

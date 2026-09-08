@@ -415,11 +415,23 @@ window.Omni = (function () {
     '</a>';
   }
 
+  /* 常用連結的標籤一律顯示，沒填就當「其他」。
+     不像其他分類會因為「標題開頭已含該標籤」而省略 —— 這一區的標籤是用來
+     分群配色的，每列都要有才看得出群組（"HR 系統"、"測試環境 — Club"
+     這種標題開頭剛好等於標籤，原本會被省略掉）。
+     data-tag 給 CSS 上色用；catalog.js 填了沒對應顏色的標籤會落到預設灰。 */
+  function linkTag(l) {
+    return String((l && l.game) || "其他");
+  }
+  function tagSpan(cls, name) {
+    return '<span class="' + cls + '" data-tag="' + esc(name) + '">' + esc(name) + '</span>';
+  }
+
   // 常用連結那種一列一個的連結卡
   function linkCard(l) {
     return '<a class="link-card" href="' + esc(l.url) + '" target="_blank" rel="noopener noreferrer"' +
            (l.desc ? ' title="' + esc(l.desc) + '"' : '') + '>' +
-      (l.game ? '<span class="lk-tag">' + esc(l.game) + '</span>' : '') +
+      tagSpan("lk-tag", linkTag(l)) +
       '<span class="lk-name">' + esc(l.title) + '</span>' +
       '<span class="arrow">→</span>' +
     '</a>';
@@ -428,10 +440,17 @@ window.Omni = (function () {
   // 清單模式：一列一筆，左側色條標分類
   function rowItem(it) {
     var ext = isExternal(it.url);
-    var showGid = it.game && String(it.title || "").indexOf(it.game) !== 0;
+    var tag;
+    if (it.cat === "links") {
+      tag = tagSpan("r-tag", linkTag(it));
+    } else {
+      // 其他分類維持原本規則：標題開頭已是那個代號就不重複顯示
+      var showGid = it.game && String(it.title || "").indexOf(it.game) !== 0;
+      tag = showGid ? tagSpan("r-tag", it.game) : "";
+    }
     return '<a class="row ' + esc(it.cat) + '" href="' + esc(it.url) + '"' +
            (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
-      (showGid ? '<span class="r-tag">' + esc(it.game) + '</span>' : '') +
+      tag +
       '<span class="r-title">' + esc(it.title) + '</span>' +
       (it.desc ? '<span class="r-desc">' + esc(it.desc) + '</span>' : '') +
       (it.date ? '<span class="r-meta">' + esc(it.date) + '</span>' : '') +
