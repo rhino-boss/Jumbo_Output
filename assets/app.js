@@ -181,6 +181,37 @@ window.Omni = (function () {
       .then(parseLogDate);
   }
 
+  /* 文件裡沒寫日期時，退而求其次用「資料夾最後一次 commit 的日期」。
+     每款只打一次 API，結果快取 24 小時（未登入額度是每小時 60 次）。 */
+  var CDATE_KEY = "omniplay-commit-dates";
+  var CDATE_TTL = 24 * 60 * 60 * 1000;
+  var cdateCache = (function () {
+    try {
+      var c = JSON.parse(localStorage.getItem(CDATE_KEY) || "{}");
+      return (Date.now() - (c.at || 0) < CDATE_TTL) ? (c.map || {}) : {};
+    } catch (e) { return {}; }
+  })();
+  function saveCommitDates() {
+    try { localStorage.setItem(CDATE_KEY, JSON.stringify({ at: Date.now(), map: cdateCache })); }
+    catch (e) {}
+  }
+  function fetchCommitDate(folder) {
+    if (folder in cdateCache) return Promise.resolve(cdateCache[folder]);
+    var url = API_BASE + "/commits?path=" + encodeURIComponent(SLOTS_PATH + "/" + folder) +
+              "&per_page=1";
+    return fetch(url, { headers: { Accept: "application/vnd.github+json" } })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (arr) {
+        var iso = arr && arr[0] && arr[0].commit && arr[0].commit.committer &&
+                  arr[0].commit.committer.date;
+        var ts = iso ? Date.parse(iso) || 0 : 0;
+        cdateCache[folder] = ts;
+        saveCommitDates();
+        return ts;
+      })
+      .catch(function () { return 0; });
+  }
+
   /* 最後一次成功掃到的遊戲清單。API 額度用完時拿它頂著，
      總比讓整個 Demogame 區變空白好。 */
   var LIST_KEY = "omniplay-games";
@@ -281,13 +312,23 @@ window.Omni = (function () {
         });
       })
       .then(function (games) {
+        // 文件裡沒日期的，改用資料夾最後 commit 日期補上
+        var need = games.filter(function (g) { return !g.updated; });
+        if (!need.length) return games;
+        return Promise.all(need.map(function (g) {
+          return fetchCommitDate(g.folder).then(function (ts) {
+            if (ts) { g.updated = ts; g.dateFrom = "最後更新"; }
+          });
+        })).then(function () { return games; });
+      })
+      .then(function (games) {
         // 文件日期最新的放前面；沒有日期的沉到最後
         games.sort(function (a, b) {
           return (b.updated || 0) - (a.updated || 0) || a.id.localeCompare(b.id);
         });
         var undated = games.filter(function (g) { return !g.updated; });
         if (undated.length) {
-          notes.push("這幾款的文件裡找不到日期，排在最後：" +
+          notes.push("這幾款查不到任何日期（文件與 commit 都沒有），排在最後：" +
                      undated.map(function (g) { return g.id || g.name; }).join("、"));
         }
         saveGameList(games);
