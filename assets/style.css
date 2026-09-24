@@ -16,6 +16,7 @@
   /* 分類色：區塊標題、卡片頂端色條、badge、色點共用 */
   --cat-all: #9ba3af;
   --cat-demo: #4a7fd0;        /* 藍 — Demogame */
+  --cat-idea: #8e6bc1;        /* 紫 — 遊戲發想 */
   --cat-analysis: #d9534f;    /* 紅 — 分析報告 */
   --cat-report: #d9a13f;      /* 琥珀 — 其他報告 */
   --cat-links: #6b8f71;       /* 綠 — 常用連結 */
@@ -164,6 +165,7 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
 .sec-btn.disabled { opacity: .5; cursor: not-allowed; }
 
 .section.demo,     .stat-card.demo     { --sec-color: var(--cat-demo); }
+.section.idea,     .stat-card.idea     { --sec-color: var(--cat-idea); }
 .section.analysis, .stat-card.analysis { --sec-color: var(--cat-analysis); }
 .section.report,   .stat-card.report   { --sec-color: var(--cat-report); }
 .section.links,    .stat-card.links    { --sec-color: var(--cat-links); }
@@ -279,6 +281,7 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
   background: var(--accent); border-radius: 12px 12px 0 0;
 }
 .card.demo { --accent: var(--cat-demo); }
+.card.idea { --accent: var(--cat-idea); }
 .card.analysis { --accent: var(--cat-analysis); }
 .card.report { --accent: var(--cat-report); }
 .card.links { --accent: var(--cat-links); }
@@ -289,6 +292,7 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
   letter-spacing: .3px; border-radius: 99px;
 }
 .badge.demo { color: #2f5f9e; background: #e8f0fb; }
+.badge.idea { color: #6d4fa3; background: #f1ebfa; }
 .badge.analysis { color: #b03a36; background: #fbeceb; }
 .badge.report { color: #9a6c17; background: #fbf2e2; }
 .badge.links { color: #4a6e50; background: #eaf2eb; }

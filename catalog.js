@@ -66,16 +66,22 @@ window.CATALOG = [
     desc: "開發測試站"
   },
   {
-    title: "常用連結整理",
-    url: "https://docs.google.com/spreadsheets/d/1WcNH7Mu_IDXAhMvzMX-LHEzyiusUkgLV4I2O-vN6XcY/edit?gid=1289038844#gid=1289038844",
-    cat: "links", game: "Sheets",
-    desc: "連結總表（這一區的來源）"
+    title: "測試環境 — Club",
+    url: "https://jiclub.jigaming777.com/login",
+    cat: "links", game: "測試",
+    desc: "Club 測試站"
   },
   {
     title: "遊戲代號一覽",
     url: "https://docs.google.com/spreadsheets/d/1q1AzYQMf86_P2C-N5iFOUD8neyumS4vH_u1odIZzPvg/edit?gid=0#gid=0",
     cat: "links", game: "Sheets",
     desc: "iGaming 遊戲代號與 Game ID 對照"
+  },
+  {
+    title: "常用連結整理",
+    url: "https://docs.google.com/spreadsheets/d/1WcNH7Mu_IDXAhMvzMX-LHEzyiusUkgLV4I2O-vN6XcY/edit?gid=1289038844#gid=1289038844",
+    cat: "links", game: "Sheets",
+    desc: "連結總表（這一區的來源）"
   },
   {
     title: "HR 系統",
@@ -113,10 +119,4 @@ window.CATALOG = [
     cat: "links", game: "Sheets",
     desc: "數學相關的權限對照表"
   },
-  {
-    title: "測試環境 — Club",
-    url: "https://jiclub.jigaming777.com/login",
-    cat: "links", game: "測試",
-    desc: "Club 測試站"
-  }
 ];

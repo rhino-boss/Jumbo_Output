@@ -35,7 +35,7 @@ window.Omni = (function () {
   var ANALYSIS_API = API_BASE + "/contents/" + encPath(ANALYSIS_PATH);
   var ANALYSIS_BASE = PAGES_BASE + "/" + encPath(ANALYSIS_PATH);
 
-  var CAT_LABEL = { demo: "Demogame", analysis: "競品分析", report: "其他報告", links: "常用連結" };
+  var CAT_LABEL = { demo: "Demogame", idea: "遊戲發想", analysis: "競品分析", report: "其他報告", links: "常用連結" };
 
   var notes = [];
 
@@ -222,24 +222,31 @@ window.Omni = (function () {
         var nodes = tree.tree || [];
         if (tree.truncated) notes.push("GitHub 目錄樹過大被截斷，Demogame 清單可能不完整");
 
-        // 只取頂層「代號_名稱」資料夾（中文開頭的 其他/ 因此自動排除）
-        var folders = nodes.filter(function (n) {
-          return n.type === "tree" && /^[A-Za-z0-9]+_[^/]+$/.test(n.path);
-        }).map(function (n) { return n.path; });
-
         /* 整棵樹已經在手上，所以 demo／版本檔／封面圖在不在都直接從樹判斷，
            不必先打再看 404 — 省下多餘請求，也不會在 console 留紅字 */
-        var hasDemo = {}, hasManifest = {}, hasCover = {}, hasLog = {};
+        var hasDemo = {}, hasManifest = {}, hasCover = {}, hasLog = {}, hasRule = {};
         nodes.forEach(function (n) {
-          var m = n.path.match(/^([A-Za-z0-9]+_[^/]+)\/index\.html$/);
+          var m = n.path.match(/^([^/]+)\/index\.html$/);
           if (m) { hasDemo[m[1]] = true; return; }
-          m = n.path.match(/^([A-Za-z0-9]+_[^/]+)\/Versions\/version_manifest\.js$/);
+          m = n.path.match(/^([^/]+)\/game_rule\.md$/);
+          if (m) { hasRule[m[1]] = true; return; }
+          m = n.path.match(/^([^/]+)\/Versions\/version_manifest\.js$/);
           if (m) { hasManifest[m[1]] = true; return; }
-          m = n.path.match(/^([A-Za-z0-9]+_[^/]+)\/修改紀錄\.md$/);
+          m = n.path.match(/^([^/]+)\/修改紀錄\.md$/);
           if (m) { hasLog[m[1]] = true; return; }
           m = n.path.match(/遊戲資源\/([A-Za-z0-9]+)\.png$/);
           if (m) hasCover[m[1]] = true;
         });
+
+        /* 頂層資料夾分兩種：
+             代號_名稱   → Demogame（照舊）
+             純名稱      → 沒有 Game ID＝發想中的遊戲，但要有 game_rule.md
+                           或 index.html 才算（其他/、專案需知/ 這類工具夾因此排除） */
+        var CODE_RE = /^[A-Za-z0-9]+_[^/]+$/;
+        var folders = nodes.filter(function (n) {
+          if (n.type !== "tree" || n.path.indexOf("/") !== -1) return false;
+          return CODE_RE.test(n.path) || hasDemo[n.path] || hasRule[n.path];
+        }).map(function (n) { return n.path; });
 
         // 全部都是同源的 Pages 靜態檔，可以一次平行抓完，不吃 API 額度
         return Promise.all(folders.map(function (folder) {
@@ -256,6 +263,7 @@ window.Omni = (function () {
             var rule = statics[i][0], version = statics[i][1], logDate = statics[i][2];
             return {
               folder: folder, id: info.id, name: info.name,
+              idea: !CODE_RE.test(folder),   // 沒有代號前綴＝發想中的遊戲
               play: rule.play, version: version,
               // 修改紀錄的最新日期優先，沒有就退回 game_rule.md 的撰寫日期
               updated: logDate || rule.docDate || 0,
@@ -279,7 +287,7 @@ window.Omni = (function () {
         var undated = games.filter(function (g) { return !g.updated; });
         if (undated.length) {
           notes.push("這幾款的文件裡找不到日期，排在最後：" +
-                     undated.map(function (g) { return g.id; }).join("、"));
+                     undated.map(function (g) { return g.id || g.name; }).join("、"));
         }
         saveGameList(games);
         return games;
@@ -460,7 +468,7 @@ window.Omni = (function () {
   // 遊戲轉成圖4 那種卡的資料形狀
   function gameAsItem(g) {
     return {
-      title: (g.id ? g.id + " " + g.name : g.name), url: g.playUrl, cat: "demo",
+      title: (g.id ? g.id + " " + g.name : g.name), url: g.playUrl, cat: g.idea ? "idea" : "demo",
       game: g.id, desc: g.play, date: g.updated ? new Date(g.updated).toISOString().slice(0, 10) : "",
       tags: g.version ? [g.version] : []
     };

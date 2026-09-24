@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <meta name="theme-color" content="#2a3d5c">
 <!-- 改到 assets/ 裡的檔案時，這個 ?v= 要一起改（見 README「改 assets 記得改版號」） -->
-<link rel="stylesheet" href="assets/style.css?v=20260908b">
+<link rel="stylesheet" href="assets/style.css?v=20260924a">
 <title>Omniplay</title>
 </head>
 <body>
@@ -48,8 +48,8 @@
 
 <footer>made with ☕ by c</footer>
 
-<script src="catalog.js?v=20260908b"></script>
-<script src="assets/app.js?v=20260908b"></script>
+<script src="catalog.js?v=20260924a"></script>
+<script src="assets/app.js?v=20260924a"></script>
 <script>
 (function () {
   /* 四個分類共用這一頁，用 ?cat= 決定內容。
@@ -63,6 +63,13 @@
       unit: "款",
       sorts: [{ key: "date", label: "文件日期" }, { key: "id", label: "代號" }],
       def: { key: "id", desc: true }
+    },
+    idea: {
+      label: "遊戲發想", sub: "發想中的遊戲（尚無 Game ID）",
+      placeholder: "搜尋遊戲名稱、玩法…",
+      unit: "款",
+      sorts: [{ key: "date", label: "文件日期" }, { key: "title", label: "名稱" }],
+      def: { key: "date", desc: true }
     },
     analysis: {
       label: "競品分析", sub: "競品遊戲的數據分析",
@@ -185,8 +192,8 @@
       return;
     }
 
-    // 卡片模式：Demogame 用遊戲卡、常用連結用連結列、其餘用一般卡
-    if (cat === "demo") {
+    // 卡片模式：Demogame／遊戲發想用遊戲卡、常用連結用連結列、其餘用一般卡
+    if (cat === "demo" || cat === "idea") {
       var byUrl = {};
       games.forEach(function (g) { byUrl[g.playUrl] = g; });
       var newest = {};
@@ -226,10 +233,10 @@
       .map(function (i, n) { i._i = n; return i; });
   }
 
-  if (cat === "demo") {
+  if (cat === "demo" || cat === "idea") {
     Omni.loadGames().then(function (g) {
-      games = g;
-      items = g.map(Omni.gameAsItem);
+      games = g.filter(function (x) { return cat === "idea" ? x.idea : !x.idea; });
+      items = games.map(Omni.gameAsItem);
       loading = false; render();
     });
   } else if (cat === "analysis") {
