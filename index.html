@@ -217,6 +217,27 @@
     }).join("");
   }
 
+ /* ---------- 遊戲發想區：用競品分析那種卡（listCard） ---------- */
+  function renderIdeaCards(q, emptyMsg) {
+    var body = document.getElementById("idea-body");
+    var pool = ideaGames();
+    var list = pool.filter(function (g) { return matches(g, q); });
+    var busy = loading.demo && !games.length;
+    setCount("idea", busy ? null : list.length + " 款");
+    body.className = "grid";
+    if (busy) { body.innerHTML = emptyBox("正在載入…"); return; }
+    if (!list.length) { body.innerHTML = emptyBox(q ? "沒有符合的遊戲。" : emptyMsg); return; }
+    body.innerHTML = limit(list, "idea", q).map(function (g) {
+      var item = Omni.gameAsItem(g);
+      // 有規則書就連規則書，沒有就連 demo；兩者都沒有的不要做成連結（會連到 404）
+      item.url = g.ruleUrl || (g.hasDemo ? g.playUrl : "");
+      item.desc = g.play || "—";
+      var html = Omni.listCard(item);
+      if (!item.url) html = "<div " + html.slice(3, -4).replace(' href=""', "") + "</div>";
+      return html;
+    }).join("");
+  }
+
   /* ---------- 卡片區（競品分析、其他報告） ---------- */
   function renderCards(id, items, q, unit, emptyMsg) {
     var body = document.getElementById(id + "-body");
@@ -245,7 +266,7 @@
     var q = qEl.value.trim().toLowerCase();
     renderTop();
     renderGameRail("demo", demoGames(), q, "掃不到任何遊戲。");
-    renderGameRail("idea", ideaGames(), q,
+    renderIdeaCards(q,
       "還沒有發想中的遊戲 — 在 Slots/其他/遊戲發想/ 開一個遊戲資料夾就會出現在這裡。");
     renderCards("analysis", analysis.slice().sort(byDateDesc), q, "份", "掃不到任何競品分析。");
     renderCards("report", manualOf("report"), q, "份",
