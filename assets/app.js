@@ -2,7 +2,8 @@
    Omniplay — 共用資料載入與卡片渲染（index.html 與 all.html）
 
    所有內容都從 rhino-boss/Jumbo 掃出來：
-     Demogame  ← Slots/<代號_名稱>/index.html
+     Demogame  ← Slots/<代號_名稱>/
+     遊戲發想   ← Slots/其他/遊戲發想/<遊戲名>/（沒有 Game ID 的發想中遊戲）
      競品分析   ← 競品分析/遊戲數據_*.html
      其他報告／常用連結 ← catalog.js（手動）
 
@@ -223,34 +224,32 @@ window.Omni = (function () {
         if (tree.truncated) notes.push("GitHub 目錄樹過大被截斷，Demogame 清單可能不完整");
 
         /* 整棵樹已經在手上，所以 demo／版本檔／封面圖在不在都直接從樹判斷，
-           不必先打再看 404 — 省下多餘請求，也不會在 console 留紅字 */
-        var hasDemo = {}, hasManifest = {}, hasCover = {}, hasLog = {}, hasRule = {};
+           不必先打再看 404 — 省下多餘請求，也不會在 console 留紅字。
+           key 一律是「遊戲資料夾相對 Slots 的路徑」（發想遊戲帶 其他/遊戲發想/ 前綴）。 */
+        var hasDemo = {}, hasManifest = {}, hasCover = {}, hasLog = {};
         nodes.forEach(function (n) {
-          var m = n.path.match(/^([^/]+)\/index\.html$/);
+          var m = n.path.match(/^(.+)\/index\.html$/);
           if (m) { hasDemo[m[1]] = true; return; }
-          m = n.path.match(/^([^/]+)\/game_rule\.md$/);
-          if (m) { hasRule[m[1]] = true; return; }
-          m = n.path.match(/^([^/]+)\/Versions\/version_manifest\.js$/);
+          m = n.path.match(/^(.+)\/Versions\/version_manifest\.js$/);
           if (m) { hasManifest[m[1]] = true; return; }
-          m = n.path.match(/^([^/]+)\/修改紀錄\.md$/);
+          m = n.path.match(/^(.+)\/修改紀錄\.md$/);
           if (m) { hasLog[m[1]] = true; return; }
           m = n.path.match(/遊戲資源\/([A-Za-z0-9]+)\.png$/);
           if (m) hasCover[m[1]] = true;
         });
 
-        /* 頂層資料夾分兩種：
-             代號_名稱   → Demogame（照舊）
-             純名稱      → 沒有 Game ID＝發想中的遊戲，但要有 game_rule.md
-                           或 index.html 才算（其他/、專案需知/ 這類工具夾因此排除） */
+        /* 兩種遊戲資料夾：
+             頂層 代號_名稱               → Demogame（照舊）
+             其他/遊戲發想/<遊戲名>       → 沒有 Game ID＝發想中的遊戲 */
         var CODE_RE = /^[A-Za-z0-9]+_[^/]+$/;
+        var IDEA_RE = /^其他\/遊戲發想\/[^/]+$/;
         var folders = nodes.filter(function (n) {
-          if (n.type !== "tree" || n.path.indexOf("/") !== -1) return false;
-          return CODE_RE.test(n.path) || hasDemo[n.path] || hasRule[n.path];
+          return n.type === "tree" && (CODE_RE.test(n.path) || IDEA_RE.test(n.path));
         }).map(function (n) { return n.path; });
 
         // 全部都是同源的 Pages 靜態檔，可以一次平行抓完，不吃 API 額度
         return Promise.all(folders.map(function (folder) {
-          var gameBase = PAGES_BASE + "/" + encPath(SLOTS_PATH) + "/" + encodeURIComponent(folder);
+          var gameBase = PAGES_BASE + "/" + encPath(SLOTS_PATH + "/" + folder);
           return Promise.all([
             fetchPlay(gameBase),
             hasManifest[folder] ? fetchVersion(gameBase) : Promise.resolve(""),
@@ -258,12 +257,14 @@ window.Omni = (function () {
           ]);
         })).then(function (statics) {
           return folders.map(function (folder, i) {
-            var info = parseFolderName(folder);
-            var gameBase = PAGES_BASE + "/" + encPath(SLOTS_PATH) + "/" + encodeURIComponent(folder);
+            var idea = IDEA_RE.test(folder);
+            // 發想遊戲的資料夾名就是遊戲名，沒有 Game ID
+            var info = idea ? { id: "", name: folder.split("/").pop() } : parseFolderName(folder);
+            var gameBase = PAGES_BASE + "/" + encPath(SLOTS_PATH + "/" + folder);
             var rule = statics[i][0], version = statics[i][1], logDate = statics[i][2];
             return {
               folder: folder, id: info.id, name: info.name,
-              idea: !CODE_RE.test(folder),   // 沒有代號前綴＝發想中的遊戲
+              idea: idea,
               play: rule.play, version: version,
               // 修改紀錄的最新日期優先，沒有就退回 game_rule.md 的撰寫日期
               updated: logDate || rule.docDate || 0,
@@ -273,7 +274,7 @@ window.Omni = (function () {
               coverUrl: hasCover[info.id]
                 ? COVER_BASE + "/" + encodeURIComponent(info.id) + ".png" : "",
               ruleUrl: rule.hasRule
-                ? BLOB_BASE + "/" + encPath(SLOTS_PATH) + "/" + encodeURIComponent(folder) + "/game_rule.md"
+                ? BLOB_BASE + "/" + encPath(SLOTS_PATH + "/" + folder) + "/game_rule.md"
                 : ""
             };
           });
