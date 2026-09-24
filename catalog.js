@@ -30,7 +30,7 @@
 window.CATALOG = [
   /* ---- 其他報告 ---- */
   {
-    title: "老手救援機制（C1／C2／C3 進行中）",
+    title: "老手救援（C3 進行中）",
     url: "https://rhino-boss.github.io/Jumbo/System/機制說明_老手救援.html",
     cat: "report",
     desc: "頁內切換三個版本：C 版雙池、C-2 初版、C-2 分階段（現行 c2-1.4）",
