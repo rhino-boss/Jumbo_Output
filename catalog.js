@@ -33,8 +33,8 @@ window.CATALOG = [
     title: "老手救援（C3 進行中）",
     url: "https://rhino-boss.github.io/Jumbo/System/機制說明_老手救援.html",
     cat: "report",
-    desc: "頁內切換三個版本：C 版雙池、C-2 初版、C-2 分階段（現行 c2-1.4）",
-    date: "2026-09-24"
+    desc: "頁內切換三個版本：C 版雙池、C-2 初版、C-2 分階段（現行 c2-1.5）",
+    date: "2026-09-29"
   },
 
   /* ---- 常用連結（順序即顯示順序，首頁只顯示前 4 個） ----
