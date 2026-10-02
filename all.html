@@ -78,6 +78,13 @@
       sorts: [{ key: "date", label: "報告日期" }, { key: "title", label: "名稱" }],
       def: { key: "date", desc: true }
     },
+    spec: {
+      label: "專案須知", sub: "開發流程與各類規範文件",
+      placeholder: "搜尋規範名稱…",
+      unit: "份",
+      sorts: [{ key: "order", label: "預設順序" }, { key: "title", label: "名稱" }],
+      def: { key: "order", desc: false }
+    },
     report: {
       label: "其他報告", sub: "機制說明與專題報告",
       placeholder: "搜尋標題、說明…",
@@ -242,6 +249,10 @@
   } else if (cat === "analysis") {
     Omni.loadAnalysis().then(function (a) {
       items = a; loading = false; render();
+    });
+  } else if (cat === "spec") {
+    Omni.loadSpecs().then(function (s) {
+      items = s.map(function (i, n) { i._i = n; return i; }); loading = false; render();
     });
   } else {
     items = manualOf(cat);

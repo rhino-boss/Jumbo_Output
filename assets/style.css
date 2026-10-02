@@ -18,6 +18,7 @@
   --cat-demo: #4a7fd0;        /* 藍 — Demogame */
   --cat-idea: #8e6bc1;        /* 紫 — 遊戲發想 */
   --cat-analysis: #d9534f;    /* 紅 — 分析報告 */
+  --cat-spec: #2a8a74;        /* 青綠 — 專案須知 */
   --cat-report: #d9a13f;      /* 琥珀 — 其他報告 */
   --cat-links: #6b8f71;       /* 綠 — 常用連結 */
 
@@ -167,6 +168,7 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
 .section.demo,     .stat-card.demo     { --sec-color: var(--cat-demo); }
 .section.idea,     .stat-card.idea     { --sec-color: var(--cat-idea); }
 .section.analysis, .stat-card.analysis { --sec-color: var(--cat-analysis); }
+.section.spec,     .stat-card.spec     { --sec-color: var(--cat-spec); }
 .section.report,   .stat-card.report   { --sec-color: var(--cat-report); }
 .section.links,    .stat-card.links    { --sec-color: var(--cat-links); }
 
@@ -283,6 +285,7 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
 .card.demo { --accent: var(--cat-demo); }
 .card.idea { --accent: var(--cat-idea); }
 .card.analysis { --accent: var(--cat-analysis); }
+.card.spec { --accent: var(--cat-spec); }
 .card.report { --accent: var(--cat-report); }
 .card.links { --accent: var(--cat-links); }
 
@@ -294,6 +297,7 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
 .badge.demo { color: #2f5f9e; background: #e8f0fb; }
 .badge.idea { color: #6d4fa3; background: #f1ebfa; }
 .badge.analysis { color: #b03a36; background: #fbeceb; }
+.badge.spec { color: #1f6b5a; background: #e6f4f0; }
 .badge.report { color: #9a6c17; background: #fbf2e2; }
 .badge.links { color: #4a6e50; background: #eaf2eb; }
 .gid { font-size: .72rem; font-weight: 700; color: var(--text-secondary); font-variant-numeric: tabular-nums; }

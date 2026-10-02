@@ -3,7 +3,7 @@
 
    所有內容都從 rhino-boss/Jumbo 掃出來：
      Demogame  ← Slots/<代號_名稱>/
-     遊戲發想   ← Slots/其他/遊戲發想/<遊戲名>/（沒有 Game ID 的發想中遊戲）
+     遊戲發想   ← Slots/遊戲發想/<遊戲名>/（沒有 Game ID 的發想中遊戲）
      競品分析   ← 競品分析/遊戲數據_*.html
      其他報告／常用連結 ← catalog.js（手動）
 
@@ -35,8 +35,10 @@ window.Omni = (function () {
   var COVER_BASE = PAGES_BASE + "/" + encPath(SLOTS_PATH + "/其他/遊戲資源");
   var ANALYSIS_API = API_BASE + "/contents/" + encPath(ANALYSIS_PATH);
   var ANALYSIS_BASE = PAGES_BASE + "/" + encPath(ANALYSIS_PATH);
+  var SPEC_PATH = SLOTS_PATH + "/專案需知";          // 規範文件（repo 資料夾名是「需知」）
+  var SPEC_API = API_BASE + "/contents/" + encPath(SPEC_PATH);
 
-  var CAT_LABEL = { demo: "Demogame", idea: "遊戲發想", analysis: "競品分析", report: "其他報告", links: "常用連結" };
+  var CAT_LABEL = { demo: "Demogame", idea: "遊戲發想", analysis: "競品分析", spec: "專案須知", report: "其他報告", links: "常用連結" };
 
   var notes = [];
 
@@ -256,7 +258,7 @@ window.Omni = (function () {
 
         /* 整棵樹已經在手上，所以 demo／版本檔／封面圖在不在都直接從樹判斷，
            不必先打再看 404 — 省下多餘請求，也不會在 console 留紅字。
-           key 一律是「遊戲資料夾相對 Slots 的路徑」（發想遊戲帶 其他/遊戲發想/ 前綴）。 */
+           key 一律是「遊戲資料夾相對 Slots 的路徑」（發想遊戲帶 遊戲發想/ 前綴）。 */
         var hasDemo = {}, hasManifest = {}, hasCover = {}, hasLog = {};
         nodes.forEach(function (n) {
           var m = n.path.match(/^(.+)\/index\.html$/);
@@ -271,9 +273,9 @@ window.Omni = (function () {
 
         /* 兩種遊戲資料夾：
              頂層 代號_名稱               → Demogame（照舊）
-             其他/遊戲發想/<遊戲名>       → 沒有 Game ID＝發想中的遊戲 */
+             遊戲發想/<遊戲名>            → 沒有 Game ID＝發想中的遊戲 */
         var CODE_RE = /^[A-Za-z0-9]+_[^/]+$/;
-        var IDEA_RE = /^其他\/遊戲發想\/[^/]+$/;
+        var IDEA_RE = /^遊戲發想\/[^/]+$/;
         var folders = nodes.filter(function (n) {
           return n.type === "tree" && (CODE_RE.test(n.path) || IDEA_RE.test(n.path));
         }).map(function (n) { return n.path; });
@@ -418,6 +420,49 @@ window.Omni = (function () {
       });
   }
 
+  /* ---------- 專案須知：掃 Slots/專案需知 的規範文件 ---------- */
+  var SPEC_ORDER = ["開發流程", "Demogame規範", "數學模型規範", "數學文件規範", "模擬程式規範",
+                    "腳本規範", "提案報告規範", "送驗文件規範", "slot_development_specification"];
+  function specItem(f, group) {
+    var isMd = /\.md$/i.test(f.name);
+    var title = f.name.replace(/\.(md|html?)$/i, "").replace(/_/g, " ");
+    var rel = SPEC_PATH + "/" + (group ? group + "/" : "") + f.name;
+    return {
+      title: title,
+      // Markdown 由 GitHub 轉譯比較好讀；HTML 直接用 Pages
+      url: isMd ? BLOB_BASE + "/" + encPath(rel) : PAGES_BASE + "/" + encPath(rel),
+      cat: "spec", game: group || "",
+      desc: isMd ? "規範文件（Markdown）" : "規範文件（網頁版）",
+      date: "", tags: [group || "Slot", isMd ? "md" : "html"],
+      _order: (function () { var i = SPEC_ORDER.indexOf(title.replace(/ /g, "_")); return i < 0 ? 99 : i; })()
+    };
+  }
+  function loadSpecs() {
+    return fetchJson(SPEC_API).then(function (top) {
+      var files = top.filter(function (i) {
+        return i.type === "file" && /\.(md|html?)$/i.test(i.name) && !/^_/.test(i.name);
+      }).map(function (f) { return specItem(f, ""); });
+      // 子資料夾（Landbase 等）各掃一層；「其他」放的是建置腳本，不列
+      var subs = top.filter(function (i) { return i.type === "dir" && i.name !== "其他"; });
+      return Promise.all(subs.map(function (d) {
+        return fetchJson(SPEC_API + "/" + encodeURIComponent(d.name)).then(function (list) {
+          return list.filter(function (i) {
+            return i.type === "file" && /\.(md|html?)$/i.test(i.name) && !/^_/.test(i.name);
+          }).map(function (f) { return specItem(f, d.name); });
+        }).catch(function () { return []; });
+      })).then(function (groups) {
+        var out = files.concat.apply(files, groups);
+        out.sort(function (a, b) { return a._order - b._order || a.title.localeCompare(b.title); });
+        return out;
+      });
+    }).catch(function (err) {
+      notes.push(err.rateLimited
+        ? "GitHub API 額度用完（每小時 60 次、同一 IP 共用），專案須知稍後重新整理即可"
+        : "專案須知掃描失敗（" + err.message + "）");
+      return [];
+    });
+  }
+
   /* ---------- 卡片渲染 ---------- */
   // 圖1 的遊戲卡
   function gameCard(g, isNew) {
@@ -527,6 +572,7 @@ window.Omni = (function () {
     esc: esc,
     loadGames: loadGames,
     loadAnalysis: loadAnalysis,
+    loadSpecs: loadSpecs,
     gameCard: gameCard,
     listCard: listCard,
     linkCard: linkCard,

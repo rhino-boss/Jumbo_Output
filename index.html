@@ -43,6 +43,10 @@
       <div class="stat-num"><span id="s-analysis">0</span><span class="unit">份</span></div>
       <div class="stat-label">競品分析</div>
     </div>
+    <div class="stat-card spec">
+      <div class="stat-num"><span id="s-spec">0</span><span class="unit">份</span></div>
+      <div class="stat-label">專案須知</div>
+    </div>
     <div class="stat-card report">
       <div class="stat-num"><span id="s-report">0</span><span class="unit">份</span></div>
       <div class="stat-label">其他報告</div>
@@ -95,6 +99,19 @@
     <div class="grid" id="analysis-body"></div>
   </div>
 
+  <!-- ── 專案須知 ── -->
+  <div class="section spec" id="sec-spec">
+    <div class="sec-head">
+      <span class="cdot"></span>
+      <h2>專案須知</h2>
+      <span class="n" id="n-spec"></span>
+      <div class="sec-actions">
+        <a class="sec-link" href="all.html?cat=spec">完整頁 →</a>
+      </div>
+    </div>
+    <div class="grid" id="spec-body"></div>
+  </div>
+
   <!-- ── 其他報告 ── -->
   <div class="section report" id="sec-report">
     <div class="sec-head">
@@ -130,14 +147,15 @@
 (function () {
   /* 每區最多顯示幾筆，要看全部走「完整頁 →」。
      常用連結是一列一個的連結列、比卡片矮，所以多放兩個仍不占版面。 */
-  var LIMIT = { demo: 4, idea: 4, analysis: 4, report: 4, links: 6 };
+  var LIMIT = { demo: 4, idea: 4, analysis: 4, spec: 4, report: 4, links: 6 };
 
   var qEl = document.getElementById("q");
   var manual = (window.CATALOG || []).slice();
 
   var games = [];
   var analysis = [];
-  var loading = { demo: true, analysis: true };
+  var specs = [];
+  var loading = { demo: true, analysis: true, spec: true };
 
   // 有日期的排前面（新到舊）；沒日期的維持 catalog.js 裡的順序（sort 是穩定的）
   function manualOf(cat) {
@@ -165,19 +183,20 @@
     document.getElementById("s-demo").textContent = demos.length;
     document.getElementById("s-idea").textContent = ideas.length;
     document.getElementById("s-analysis").textContent = analysis.length;
+    document.getElementById("s-spec").textContent = specs.length;
     document.getElementById("s-report").textContent = reports.length;
     document.getElementById("s-links").textContent = links.length;
 
     var bar = document.getElementById("status");
     var txt = document.getElementById("status-text");
-    var busy = loading.demo || loading.analysis;
+    var busy = loading.demo || loading.analysis || loading.spec;
     bar.className = "status-bar" + (Omni.notes.length ? " warn" : "");
     txt.textContent = busy
       ? "正在載入…"
-      : "共 " + (games.length + analysis.length + reports.length + links.length) +
+      : "共 " + (games.length + analysis.length + specs.length + reports.length + links.length) +
         " 筆：Demogame " + demos.length + " 款、遊戲發想 " + ideas.length +
         " 款、競品分析 " + analysis.length +
-        " 份、其他報告 " + reports.length + " 份、常用連結 " + links.length + " 個";
+        " 份、專案須知 " + specs.length + " 份、其他報告 " + reports.length + " 份、常用連結 " + links.length + " 個";
 
     var box = document.getElementById("notes");
     if (!Omni.notes.length) { box.hidden = true; return; }
@@ -267,8 +286,9 @@
     renderTop();
     renderGameRail("demo", demoGames(), q, "掃不到任何遊戲。");
     renderIdeaCards(q,
-      "還沒有發想中的遊戲 — 在 Slots/其他/遊戲發想/ 開一個遊戲資料夾就會出現在這裡。");
+      "還沒有發想中的遊戲 — 在 Slots/遊戲發想/ 開一個遊戲資料夾就會出現在這裡。");
     renderCards("analysis", analysis.slice().sort(byDateDesc), q, "份", "掃不到任何競品分析。");
+    renderCards("spec", specs, q, "份", "掃不到任何規範文件（Slots/專案需知/）。");
     renderCards("report", manualOf("report"), q, "份",
       "還沒有其他報告 — 在 catalog.js 加入 cat: \"report\" 的項目。");
     renderLinks(q);
@@ -279,6 +299,7 @@
 
   Omni.loadGames().then(function (g) { games = g; loading.demo = false; renderAll(); });
   Omni.loadAnalysis().then(function (a) { analysis = a; loading.analysis = false; renderAll(); });
+  Omni.loadSpecs().then(function (s) { specs = s; loading.spec = false; renderAll(); });
 })();
 </script>
 </body>
