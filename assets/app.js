@@ -16,7 +16,7 @@
    額度用完時的降級行為見 loadGames 的 catch。
    ============================================================ */
 window.Omni = (function () {
-  /* ── 來源路徑：Jumbo repo 若又改結構，只要改這三行 ──
+  /* ── 來源路徑：Jumbo repo 若又改結構，只要改這幾行（SLOTS_PATH／ANALYSIS_PATH／下方 SPEC_PATH）──
      2026-09-08：repo 拿掉了 Project/ 這一層，
      Project/Slots → Slots、Project/競品分析 → 競品分析。 */
   var OWNER = "rhino-boss";
@@ -35,7 +35,7 @@ window.Omni = (function () {
   var COVER_BASE = PAGES_BASE + "/" + encPath(SLOTS_PATH + "/其他/遊戲資源");
   var ANALYSIS_API = API_BASE + "/contents/" + encPath(ANALYSIS_PATH);
   var ANALYSIS_BASE = PAGES_BASE + "/" + encPath(ANALYSIS_PATH);
-  var SPEC_PATH = SLOTS_PATH + "/專案需知";          // 規範文件（repo 資料夾名是「需知」）
+  var SPEC_PATH = "專案需知";                        // 規範文件（repo 資料夾名是「需知」；2026-10-02 自 Slots/ 搬到 repo 根目錄）
   var SPEC_API = API_BASE + "/contents/" + encPath(SPEC_PATH);
 
   var CAT_LABEL = { demo: "Demogame", idea: "遊戲發想", analysis: "競品分析", spec: "專案須知", report: "其他報告", links: "常用連結" };
@@ -420,11 +420,11 @@ window.Omni = (function () {
       });
   }
 
-  /* ---------- 專案須知：只列 Slots/專案需知 裡編譯好的 *.html 完整規範
+  /* ---------- 專案須知：只列 專案需知/ 裡編譯好的 *.html 完整規範
      （各 .md 是它的來源章節，由 其他/_build_html.py 合併成網頁版，不另外列） ---------- */
   // 顯示名稱；沒列到的檔案就用檔名（底線換空白）
-  var SPEC_TITLE = { slot_development_specification: "Slot 開發規範", landbase_specification: "Landbase 開發規範" };
-  var SPEC_ORDER = ["slot_development_specification", "landbase_specification"];
+  var SPEC_TITLE = { slot_development_specification: "Slot 開發規範", landbase_specification: "Landbase 開發規範", reskin_specification: "Reskin 開發規範" };
+  var SPEC_ORDER = ["slot_development_specification", "landbase_specification", "reskin_specification"];
   function specItem(f, group) {
     var base = f.name.replace(/\.html?$/i, "");
     var rel = SPEC_PATH + "/" + (group ? group + "/" : "") + f.name;

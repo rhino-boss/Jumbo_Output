@@ -2,7 +2,8 @@
 
 工作成果的網頁索引站。線上位址：<https://rhino-boss.github.io/Jumbo_Output/>
 
-> **來源路徑寫在 `assets/app.js` 最上面的 `SLOTS_PATH` / `ANALYSIS_PATH`。**
+> **來源路徑寫在 `assets/app.js` 最上面的 `SLOTS_PATH` / `ANALYSIS_PATH` / `SPEC_PATH`。**
+> 2026-10-02 專案需知自 `Slots/專案需知` 搬到 Jumbo repo 根目錄 `專案需知/`，`SPEC_PATH` 已跟著改。
 > Jumbo repo 若又改結構，改那兩行就好 —— 2026-09-08 該 repo 拿掉了
 > `Project/` 這一層（`Project/Slots` → `Slots`），整站的內容一度全空。
 
