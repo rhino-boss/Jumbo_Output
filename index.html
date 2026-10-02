@@ -248,8 +248,8 @@
     if (!list.length) { body.innerHTML = emptyBox(q ? "沒有符合的遊戲。" : emptyMsg); return; }
     body.innerHTML = limit(list, "idea", q).map(function (g) {
       var item = Omni.gameAsItem(g);
-      // 有規則書就連規則書，沒有就連 demo；兩者都沒有的不要做成連結（會連到 404）
-      item.url = g.ruleUrl || (g.hasDemo ? g.playUrl : "");
+      // 點卡片要能直接玩：有 demo 連 demo，沒有才退回規則書；兩者都沒有就不做成連結
+      item.url = g.hasDemo ? g.playUrl : (g.ruleUrl || "");
       item.desc = g.play || "—";
       var html = Omni.listCard(item);
       if (!item.url) html = "<div " + html.slice(3, -4).replace(' href=""', "") + "</div>";
