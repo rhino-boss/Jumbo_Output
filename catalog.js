@@ -30,6 +30,13 @@
 window.CATALOG = [
   /* ---- 其他報告 ---- */
   {
+    title: "救援池",
+    url: "https://rhino-boss.github.io/Jumbo/System/機制說明_救援池.html",
+    cat: "report",
+    desc: "救援機制的共同池：每轉提撥 5%、餘額不足不救，含 30 天共同池模擬",
+    date: "2026-10-05"
+  },
+  {
     title: "老手救援（C3 進行中）",
     url: "https://rhino-boss.github.io/Jumbo/System/機制說明_老手救援.html",
     cat: "report",
