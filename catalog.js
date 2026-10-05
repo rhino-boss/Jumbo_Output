@@ -30,6 +30,13 @@
 window.CATALOG = [
   /* ---- 其他報告 ---- */
   {
+    title: "老手救援 主救援報告",
+    url: "https://rhino-boss.github.io/Jumbo/System/機制說明_老手救援_報告.html",
+    cat: "report",
+    desc: "階段一（當日 40–400 轉）：機制、觸發點、模擬結果、當日流程與套利檢查",
+    date: "2026-10-05"
+  },
+  {
     title: "救援池",
     url: "https://rhino-boss.github.io/Jumbo/System/機制說明_救援池.html",
     cat: "report",
