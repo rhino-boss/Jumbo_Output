@@ -484,10 +484,10 @@ window.Omni = (function () {
       '</div>' +
       '<div class="gfoot">' +
         (g.ruleUrl
-          ? '<a class="btn btn-info" href="' + esc(g.ruleUrl) + '" target="_blank" rel="noopener noreferrer">遊戲資訊 <span class="ico">›</span></a>'
+          ? '<a class="btn btn-info" href="' + esc(g.ruleUrl) + '">遊戲資訊 <span class="ico">›</span></a>'
           : '<div class="btn disabled">無規則書</div>') +
         (g.hasDemo
-          ? '<a class="btn btn-play" href="' + esc(g.playUrl) + '" target="_blank" rel="noopener noreferrer">開始遊玩 <span class="ico">🎮</span></a>'
+          ? '<a class="btn btn-play" href="' + esc(g.playUrl) + '">開始遊玩 <span class="ico">🎮</span></a>'
           : '<div class="btn disabled">製作中</div>') +
       '</div>' +
     '</div>';
@@ -498,7 +498,7 @@ window.Omni = (function () {
     var ext = isExternal(it.url);
     var showGid = it.game && String(it.title || "").indexOf(it.game) !== 0;
     return '<a class="card ' + esc(it.cat) + '" href="' + esc(it.url) + '"' +
-           (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
+           (ext ? '' : '') + '>' +
       '<div class="card-top">' +
         '<span class="badge ' + esc(it.cat) + '">' + esc(CAT_LABEL[it.cat] || it.cat) + '</span>' +
         (showGid ? '<span class="gid">' + esc(it.game) + '</span>' : '') +
@@ -525,7 +525,7 @@ window.Omni = (function () {
 
   // 常用連結那種一列一個的連結卡
   function linkCard(l) {
-    return '<a class="link-card" href="' + esc(l.url) + '" target="_blank" rel="noopener noreferrer"' +
+    return '<a class="link-card" href="' + esc(l.url) + '"' +
            (l.desc ? ' title="' + esc(l.desc) + '"' : '') + '>' +
       tagSpan("lk-tag", linkTag(l)) +
       '<span class="lk-name">' + esc(l.title) + '</span>' +
@@ -545,7 +545,7 @@ window.Omni = (function () {
       tag = showGid ? tagSpan("r-tag", it.game) : "";
     }
     return '<a class="row ' + esc(it.cat) + '" href="' + esc(it.url) + '"' +
-           (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
+           (ext ? '' : '') + '>' +
       tag +
       '<span class="r-title">' + esc(it.title) + '</span>' +
       (it.desc ? '<span class="r-desc">' + esc(it.desc) + '</span>' : '') +
