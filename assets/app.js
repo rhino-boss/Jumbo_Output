@@ -38,7 +38,7 @@ window.Omni = (function () {
   var SPEC_PATH = "專案需知";                        // 規範文件（repo 資料夾名是「需知」；2026-10-02 自 Slots/ 搬到 repo 根目錄）
   var SPEC_API = API_BASE + "/contents/" + encPath(SPEC_PATH);
 
-  var CAT_LABEL = { demo: "Demogame", idea: "遊戲發想", analysis: "競品分析", spec: "專案須知", report: "其他報告", links: "常用連結" };
+  var CAT_LABEL = { demo: "Demogame", idea: "遊戲發想", analysis: "競品分析", spec: "專案須知", numeric: "數值報告", report: "其他報告", links: "常用連結" };
 
   var notes = [];
 

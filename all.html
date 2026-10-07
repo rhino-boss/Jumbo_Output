@@ -8,8 +8,8 @@
 <link rel="alternate icon" href="assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <meta name="theme-color" content="#2a3d5c">
-<!-- 改到 assets/ 裡的檔案時，這個 ?v=20261005g 要一起改（見 README「改 assets 記得改版號」） -->
-<link rel="stylesheet" href="assets/style.css?v=20261005g">
+<!-- 改到 assets/ 裡的檔案時，這個 ?v=20261007a 要一起改（見 README「改 assets 記得改版號」） -->
+<link rel="stylesheet" href="assets/style.css?v=20261007a">
 <title>Omniplay</title>
 </head>
 <body>
@@ -48,8 +48,8 @@
 
 <footer>made with ☕ by c</footer>
 
-<script src="catalog.js?v=20261005g"></script>
-<script src="assets/app.js?v=20261005g"></script>
+<script src="catalog.js?v=20261007a"></script>
+<script src="assets/app.js?v=20261007a"></script>
 <script>
 (function () {
   /* 四個分類共用這一頁，用 ?cat= 決定內容。
@@ -84,6 +84,13 @@
       unit: "份",
       sorts: [{ key: "order", label: "預設順序" }, { key: "title", label: "名稱" }],
       def: { key: "order", desc: false }
+    },
+    numeric: {
+      label: "數值報告", sub: "各專案與競品／前作的數值差異分析",
+      placeholder: "搜尋遊戲名稱、代號、說明…",
+      unit: "份",
+      sorts: [{ key: "date", label: "日期" }, { key: "title", label: "名稱" }],
+      def: { key: "date", desc: true }
     },
     report: {
       label: "其他報告", sub: "機制說明與專題報告",
