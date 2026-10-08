@@ -37,6 +37,7 @@ window.Omni = (function () {
   var ANALYSIS_BASE = PAGES_BASE + "/" + encPath(ANALYSIS_PATH);
   var SPEC_PATH = "專案需知";                        // 規範文件（repo 資料夾名是「需知」；2026-10-02 自 Slots/ 搬到 repo 根目錄）
   var SPEC_API = API_BASE + "/contents/" + encPath(SPEC_PATH);
+  var SPEC_URL = PAGES_BASE + "/" + encPath(SPEC_PATH) + "/igaming_specification.html";   // Slot 遊戲共用的開發規範
 
   var CAT_LABEL = { demo: "Demogame", idea: "遊戲發想", analysis: "競品分析", spec: "專案須知", numeric: "數值報告", report: "其他報告", links: "常用連結" };
 
@@ -259,7 +260,7 @@ window.Omni = (function () {
         /* 整棵樹已經在手上，所以 demo／版本檔／封面圖在不在都直接從樹判斷，
            不必先打再看 404 — 省下多餘請求，也不會在 console 留紅字。
            key 一律是「遊戲資料夾相對 Slots 的路徑」（發想遊戲帶 遊戲發想/ 前綴）。 */
-        var hasDemo = {}, hasManifest = {}, hasCover = {}, hasLog = {};
+        var hasDemo = {}, hasManifest = {}, hasCover = {}, hasLog = {}, numReport = {};
         nodes.forEach(function (n) {
           var m = n.path.match(/^(.+)\/index\.html$/);
           if (m) { hasDemo[m[1]] = true; return; }
@@ -267,6 +268,9 @@ window.Omni = (function () {
           if (m) { hasManifest[m[1]] = true; return; }
           m = n.path.match(/^(.+)\/修改紀錄\.md$/);
           if (m) { hasLog[m[1]] = true; return; }
+          // 數值文件：各遊戲 其他/數值報告*.html（同一款有多份時取檔名排序最後的）
+          m = n.path.match(/^(.+)\/其他\/(數值報告[^/]*\.html)$/);
+          if (m) { if (!numReport[m[1]] || m[2] > numReport[m[1]]) numReport[m[1]] = m[2]; return; }
           m = n.path.match(/遊戲資源\/([A-Za-z0-9]+)\.png$/);
           if (m) hasCover[m[1]] = true;
         });
@@ -308,7 +312,13 @@ window.Omni = (function () {
                 ? COVER_BASE + "/" + encodeURIComponent(info.id) + ".png" : "",
               ruleUrl: rule.hasRule
                 ? BLOB_BASE + "/" + encPath(SLOTS_PATH + "/" + folder) + "/game_rule.md"
-                : ""
+                : "",
+              // 「遊戲資訊」選單：規範（git 上的 spec）／自己寫的 game_rule／數值文件，沒有的檔不列
+              docs: [
+                { label: "開發規範 (Spec)", url: SPEC_URL },
+                rule.hasRule ? { label: "Game Rule", url: BLOB_BASE + "/" + encPath(SLOTS_PATH + "/" + folder) + "/game_rule.md" } : null,
+                numReport[folder] ? { label: "數值文件", url: gameBase + "/" + encodeURIComponent("其他") + "/" + encodeURIComponent(numReport[folder]) } : null
+              ].filter(Boolean)
             };
           });
         });
@@ -483,9 +493,11 @@ window.Omni = (function () {
         '<div class="gdesc">' + esc(g.play || '—') + '</div>' +
       '</div>' +
       '<div class="gfoot">' +
-        (g.ruleUrl
-          ? '<a class="btn btn-info" href="' + esc(g.ruleUrl) + '">遊戲資訊 <span class="ico">›</span></a>'
-          : '<div class="btn disabled">無規則書</div>') +
+        (g.docs && g.docs.length > 1
+          ? '<button type="button" class="btn btn-info doc-btn" data-docs="' + esc(JSON.stringify(g.docs)) + '">遊戲資訊 <span class="ico">▾</span></button>'
+          : g.docs && g.docs.length === 1
+            ? '<a class="btn btn-info" href="' + esc(g.docs[0].url) + '">' + esc(g.docs[0].label) + ' <span class="ico">›</span></a>'
+            : '<div class="btn disabled">無文件</div>') +
         (g.hasDemo
           ? '<a class="btn btn-play" href="' + esc(g.playUrl) + '">開始遊玩 <span class="ico">🎮</span></a>'
           : '<div class="btn disabled">製作中</div>') +
@@ -566,6 +578,32 @@ window.Omni = (function () {
     return [o.title, o.name, o.id, o.game, o.desc, o.play, o.version, o.date,
             CAT_LABEL[o.cat], (o.tags || []).join(" ")].join(" ").toLowerCase();
   }
+
+  /* ---------- 遊戲資訊選單 ----------
+     按鈕上的 data-docs 是該遊戲實際有的文件清單；點按鈕在卡片內彈出選單，
+     點外面／再點一次／Esc 關閉。同分頁開啟，看完可按上一頁回來。 */
+  function closeDocMenu() {
+    var open = document.querySelector(".doc-menu");
+    if (open) open.parentNode.removeChild(open);
+    document.querySelectorAll(".doc-btn[data-open]").forEach(function (b) { b.removeAttribute("data-open"); });
+  }
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest && e.target.closest(".doc-btn");
+    var reopen = btn && btn.getAttribute("data-open") === "1";
+    closeDocMenu();
+    if (!btn || reopen) return;
+    var docs = [];
+    try { docs = JSON.parse(btn.getAttribute("data-docs") || "[]"); } catch (err) { docs = []; }
+    if (!docs.length) return;
+    var menu = document.createElement("div");
+    menu.className = "doc-menu";
+    menu.innerHTML = docs.map(function (d) {
+      return '<a href="' + esc(d.url) + '">' + esc(d.label) + '</a>';
+    }).join("");
+    btn.setAttribute("data-open", "1");
+    btn.parentNode.appendChild(menu);
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeDocMenu(); });
 
   return {
     CAT_LABEL: CAT_LABEL,

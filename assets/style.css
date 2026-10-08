@@ -268,6 +268,21 @@ nav .current { color: #fff; font-weight: 600; font-size: .85rem; }
 }
 .btn.disabled .ico { border-left-color: var(--border); }
 
+/* 遊戲資訊選單：掛在 .gfoot 裡、按鈕上方彈出 */
+.gfoot { position: relative; }
+.doc-menu {
+  position: absolute; left: 6px; bottom: calc(100% + 6px); z-index: 20;
+  min-width: 170px; padding: 6px; border-radius: 10px;
+  background: var(--surface, #fff); border: 1px solid var(--border);
+  box-shadow: var(--shadow-hover, 0 8px 24px rgba(0,0,0,.14));
+}
+.doc-menu a {
+  display: block; padding: 9px 12px; border-radius: 7px;
+  font-size: .82rem; font-weight: 600; color: var(--text, #1a1a1a); text-decoration: none;
+}
+.doc-menu a:hover { background: var(--bg, #f3f3f3); }
+.doc-btn[data-open] { background: #333; }
+
 /* ── 清單／一般卡（圖4 的樣式） ── */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 13px; }
 .card {
