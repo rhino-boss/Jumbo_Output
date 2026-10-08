@@ -55,7 +55,7 @@ window.CATALOG = [
   /* ---- 其他報告 ---- */
   {
     title: "老手救援 C3 (正式報告)",
-    url: "https://rhino-boss.github.io/Jumbo/System/機制說明_老手救援_報告.html",
+    url: "https://rhino-boss.github.io/Jumbo/System/報告/機制報告_老手救援.html",
     cat: "report",
     desc: "階段一（當日 40–400 轉）：這次目標、倍數留存數據、機制與模擬結果、套利檢查",
     date: "2026-10-05"
